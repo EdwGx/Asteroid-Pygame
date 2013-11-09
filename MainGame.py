@@ -71,11 +71,7 @@ class PlayerAtom(Atom):
         self.fallBeginT = pygame.time.get_ticks()
         self.fallBeginY = self.rect.y
         self.freeFall = True
-        
 
-            
-def msTosec(ms):
-    return (ms//1000)
 
 def freeFall(time_after,start_y):   
     return int((start_y + (9.81* time_after * time_after / 1000000)))
