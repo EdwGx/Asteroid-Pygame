@@ -10,4 +10,16 @@ def getSymbol(Atomic_number):
         13: "Al",
         18: "Ar"
     }[Atomic_number]
+
+def get_shells(Atomic_number):
+    return {
+        1: [1],
+        2: [2],
+        3: [2,1],
+        6: [2,4],
+        8: [2,6],
+        13: [2,8,3],
+        18: [2,8,8]
+    }[Atomic_number]
+    
     

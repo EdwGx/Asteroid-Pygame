@@ -16,8 +16,10 @@ class Atom(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         #basic init
         self.radius = 30
-        self.ion = -10
+        self.ion = 0
         self.atomic = at_num
+        self.shell = chemistry.get_shells 
+        
         #shape
         self.redraw()
         self.rect = self.image.get_rect()
@@ -75,8 +77,17 @@ class PlayerAtom(Atom):
 
 def freeFall(time_after,start_y):   
     return int((start_y + (9.81* time_after * time_after / 1000000)))
+
+def draw_mouse():
+    pos = pygame.mouse.get_pos()
+    global screen
+    pygame.draw.line(screen,black,(pos[0]+10,pos[1]),(pos[0]-10,pos[1]),1)
+    pygame.draw.line(screen,black,(pos[0],pos[1]+10),(pos[0],pos[1]-10),1)
+    
  
 pygame.init()
+
+pygame.mouse.set_visible = False
 
 sizeX = 800
 sizeY = 500
@@ -126,7 +137,7 @@ while done == False:
 
     #fpsLabel = font.render(str(pygame.time.Clock.get_fps()),True,green)
     #screen.blit(fpsLabel,(300,300))
-
+    draw_mouse()
     d_list.update()
     d_list.draw(screen)
      
