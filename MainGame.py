@@ -10,15 +10,16 @@ blue     = ( 52, 152, 219)
 turquoise =  (26, 188, 156)
 grey = (149, 165, 166)
 
-
-class Atom(pygame.sprite.Sprite):
+class Atom(pygame.sprite.DirtySprite):
     def __init__ (self,at_num):
-        pygame.sprite.Sprite.__init__(self)
+        #Lower than block and mouse
+        self._layer = 2
+        pygame.sprite.DirtySprite.__init__(self,full_list,atom_list)
         #basic init
         self.radius = 30
         self.ion = 0
         self.atomic = at_num
-        self.shell = chemistry.get_shells 
+        self.shell = chemistry.get_shells(at_num) 
         
         #shape
         self.redraw()
@@ -54,9 +55,6 @@ class Atom(pygame.sprite.Sprite):
                          self.radius-int(symbolLabel.get_height()/2)))
         
         
-        
-    
-
 class PlayerAtom(Atom):
     def __init__ (self,at_num,posX,posY):
         Atom.__init__(self,at_num)
@@ -74,31 +72,49 @@ class PlayerAtom(Atom):
         self.fallBeginY = self.rect.y
         self.freeFall = True
 
-
+def draw_mouse():
+    global mX,mY
+    line_len = 10
+    from_center = 5
+    # - part
+    pygame.draw.line(screen,red,
+                     (mX-line_len-from_center,mY),
+                     (mX-from_center,mY),3)
+    pygame.draw.line(screen,red,
+                     (mX+line_len+from_center,mY),
+                     (mX+from_center,mY),3)
+    # | part
+    pygame.draw.line(screen,red,
+                     (mX,mY-line_len-from_center),
+                     (mX,mY-from_center),3)
+    pygame.draw.line(screen,red,
+                     (mX,mY+line_len+from_center),
+                     (mX,mY+from_center),3)
+    # center part
+    pygame.draw.circle(screen,red,(mX,mY),3,0)
+    
+                                    
 def freeFall(time_after,start_y):   
     return int((start_y + (9.81* time_after * time_after / 1000000)))
 
-def draw_mouse():
-    pos = pygame.mouse.get_pos()
-    global screen
-    pygame.draw.line(screen,black,(pos[0]+10,pos[1]),(pos[0]-10,pos[1]),1)
-    pygame.draw.line(screen,black,(pos[0],pos[1]+10),(pos[0],pos[1]-10),1)
+
     
  
 pygame.init()
+#Things must be do first
+full_list = pygame.sprite.LayeredUpdates()
+atom_list = pygame.sprite.LayeredUpdates()
+pygame.mouse.set_visible(False)
 
-pygame.mouse.set_visible = False
-
+#Def varibles
 sizeX = 800
 sizeY = 500
 screen = pygame.display.set_mode([sizeX,sizeY])
 font = pygame.font.SysFont("comicsansms",30)
- 
 pygame.display.set_caption("My Game")
 
-d_list = pygame.sprite.Group()
+#init player
 player = PlayerAtom(1,200,400)
-d_list.add(player)
 moveY = False
 
 
@@ -126,20 +142,24 @@ while done == False:
         
     if moveY:
         player.rect.y -= 2
-                
-    frames = 60
-    
 
+    mX = (pygame.mouse.get_pos())[0]
+    mY = (pygame.mouse.get_pos())[1]
+    frames = 60
+    #logic
+    coll_mouse_list = atom_list.get_sprites_at((mX,mY))
+    
+    #draw
     screen.fill(grey)
     t = pygame.time.get_ticks()
     timeLabel = font.render(str(t),True,green)
     screen.blit(timeLabel,(300,300))
 
-    #fpsLabel = font.render(str(pygame.time.Clock.get_fps()),True,green)
-    #screen.blit(fpsLabel,(300,300))
+    full_list.update()
+    full_list.draw(screen)
+
     draw_mouse()
-    d_list.update()
-    d_list.draw(screen)
+    #draw end
      
     pygame.display.flip()
     clock.tick(frames)
