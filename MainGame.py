@@ -1,14 +1,6 @@
 import pygame
-import chemistry
-
-black    = (   0,   0,   0)
-white    = ( 255, 255, 255)
-asphalt = (52, 73, 94)
-green    = (  46, 204, 113)
-red      = ( 231, 76, 60)
-blue     = ( 52, 152, 219)
-turquoise =  (26, 188, 156)
-grey = (149, 165, 166)
+from science import*
+from color import*
 
 class Atom(pygame.sprite.DirtySprite):
     def __init__ (self,at_num):
@@ -17,9 +9,9 @@ class Atom(pygame.sprite.DirtySprite):
         pygame.sprite.DirtySprite.__init__(self,full_list,atom_list)
         #basic init
         self.radius = 30
-        self.ion = 0
+        self.ion =0
         self.atomic = at_num
-        self.shell = chemistry.get_shells(at_num) 
+        self.shell = get_shells(at_num) 
         
         #shape
         self.redraw()
@@ -31,7 +23,7 @@ class Atom(pygame.sprite.DirtySprite):
         pygame.draw.circle(self.image,blue,(self.radius,self.radius),30,0)
         #symbol
         symbolFont = pygame.font.SysFont("Georgia",20)
-        symbolLabel = symbolFont.render(chemistry.getSymbol(self.atomic),True,white)
+        symbolLabel = symbolFont.render(getSymbol(self.atomic),True,white)
         #Get Letters Size and Center
         #ion
         if self.ion == 0:
@@ -65,8 +57,11 @@ class PlayerAtom(Atom):
         self.freeFall = True
     def update(self):
         global sizeY
-        if self.freeFall and ((sizeY - self.radius*2)>self.rect.y): 
-            self.rect.y = freeFall(pygame.time.get_ticks()-self.fallBeginT,self.fallBeginY)
+        if self.freeFall:
+            if (sizeY - self.radius*2)>self.rect.y : 
+                self.rect.y = freeFall(pygame.time.get_ticks()-self.fallBeginT,self.fallBeginY)
+            else:
+                self.rect.y = sizeY - self.radius*2
     def startFall(self):
         self.fallBeginT = pygame.time.get_ticks()
         self.fallBeginY = self.rect.y
@@ -92,14 +87,24 @@ def draw_mouse():
                      (mX,mY+from_center),3)
     # center part
     pygame.draw.circle(screen,red,(mX,mY),3,0)
-    
-                                    
-def freeFall(time_after,start_y):   
-    return int((start_y + (9.81* time_after * time_after / 1000000)))
 
-
+def jump_bar():
+    global jumPower, moveY
+    if jumPower > 0:
+        if jumPower > 0.3:
+            draw_color = green
+        else:
+            draw_color = red
+        pygame.draw.rect(screen,
+                         draw_color,
+                         pygame.Rect(10,sizeY-30,100*jumPower,20))
+    else:
+        jumPower = 0
+        if moveY:
+            moveY = False
+            player.startFall()
     
- 
+                                     
 pygame.init()
 #Things must be do first
 full_list = pygame.sprite.LayeredUpdates()
@@ -109,6 +114,7 @@ pygame.mouse.set_visible(False)
 #Def varibles
 sizeX = 800
 sizeY = 500
+jumPower = 1
 screen = pygame.display.set_mode([sizeX,sizeY])
 font = pygame.font.SysFont("comicsansms",30)
 pygame.display.set_caption("My Game")
@@ -140,8 +146,17 @@ while done == False:
                 moveY = False
                 player.startFall()
         
-    if moveY:
-        player.rect.y -= 2
+    if moveY and jumPower > 0:
+        if player.rect.y >= 2:
+            player.rect.y -= 2
+        else:
+            player.rect.y = 0
+            
+        jumPower -= 0.02
+    else:
+        if jumPower <= 0.98:
+            jumPower += 0.02
+            
 
     mX = (pygame.mouse.get_pos())[0]
     mY = (pygame.mouse.get_pos())[1]
@@ -151,13 +166,16 @@ while done == False:
     
     #draw
     screen.fill(grey)
+    #test
     t = pygame.time.get_ticks()
     timeLabel = font.render(str(t),True,green)
     screen.blit(timeLabel,(300,300))
 
+    #real draw
     full_list.update()
     full_list.draw(screen)
 
+    jump_bar()
     draw_mouse()
     #draw end
      

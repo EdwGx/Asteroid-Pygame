@@ -21,5 +21,8 @@ def get_shells(Atomic_number):
         13: [2,8,3],
         18: [2,8,8]
     }[Atomic_number]
+
+def freeFall(time_after,start_y):
+    return int((start_y + (9.81* time_after * time_after / 100000)))
     
     
