@@ -1,18 +1,20 @@
 import pygame
-from science import*
+import random
+
+from physic import*
 from color import*
 
-class Atom(pygame.sprite.DirtySprite):
-    def __init__ (self,at_num):
+class MagBall(pygame.sprite.DirtySprite):
+    def __init__ (self,number,color,mu,di):
         #Lower than block and mouse
         self._layer = 2
-        pygame.sprite.DirtySprite.__init__(self,full_list,atom_list)
+        pygame.sprite.DirtySprite.__init__(self,full_list,ball_list)
         #basic init
         self.radius = 30
-        self.ion =0
-        self.atomic = at_num
-        self.shell = get_shells(at_num) 
-        
+        self.mu = mu
+        self.di = di
+        self.color = color
+        self.number = number 
         #shape
         self.redraw()
         self.rect = self.image.get_rect()
@@ -20,36 +22,72 @@ class Atom(pygame.sprite.DirtySprite):
     def redraw(self):
         self.image = pygame.Surface((self.radius*2,self.radius*2),flags=pygame.SRCALPHA)
         self.image.convert_alpha()
-        pygame.draw.circle(self.image,blue,(self.radius,self.radius),30,0)
-        #symbol
-        symbolFont = pygame.font.SysFont("Georgia",20)
-        symbolLabel = symbolFont.render(getSymbol(self.atomic),True,white)
-        #Get Letters Size and Center
-        #ion
-        if self.ion == 0:
-            finLabel = symbolLabel
+        pygame.draw.circle(self.image,self.color,(self.radius,self.radius),30,0)
+        if self.number > 0:
+            if self.mu:
+                strings = '*'+ str(self.number)
+            elif self.di:
+                strings = '/'+ str(self.number)
+            else:
+                strings = '+' + str(self.number)
+        elif self.number < 0:
+            if self.mu:
+                strings = '*('+ str(self.number) +')'
+            elif self.di:
+                strings = '/('+ str(self.number) + ')'
+            else:
+                strings = str(self.number)
         else:
-            symbolFont = pygame.font.SysFont("Georgia",10)
-            if self.ion > 0:
-                ionText = str(abs(self.ion)) + "+"
-            elif self.ion < 0:
-                ionText = str(abs(self.ion)) + "-"
-            ionLabel = symbolFont.render(ionText,True,white)
+            strings = '0'
+        numberFont = pygame.font.SysFont("Arial",20,True)
+        numberLabel = numberFont.render(strings,True,white)
+        self.image.blit(numberLabel,
+                        (self.radius-int(numberLabel.get_width()/2),
+                         self.radius-int(numberLabel.get_height()/2)))
 
-            finLabel = pygame.Surface(
-                (symbolLabel.get_width()+ionLabel.get_width(),symbolLabel.get_height()),
-                flags=pygame.SRCALPHA)
-            finLabel.blit(symbolLabel,(0,0))
-            finLabel.blit(ionLabel,(symbolLabel.get_width(),0))
-        #draw label
-        self.image.blit(finLabel,
-                        (self.radius-int(symbolLabel.get_width()/2),
-                         self.radius-int(symbolLabel.get_height()/2)))
+class BadBall(MagBall):
+    def __init__ (self):
+        global bad_list
+        rand = random.randrange(9)
+        if rand < 2:
+            color = green
+            mu = False
+            di = False
+        elif rand < 6:
+            color = red
+            mu = False
+            di = False
+        elif rand < 8:
+            sign = 2
+            color = green
+            mu = True
+            di = False
+        else:
+            sign = 3
+            color = red
+            mu = False
+            di = True
+            
+        MagBall.__init__(self,random.randint(1,9),color,mu,di)
+        startY = random.randrange(sizeY-60)
+        self.moveSpeed = random.randrange(2)
+        self.moveDir = random.randrange(2)
+        self.rect.x = sizeX + 30
+        self.rect.y = startY
+        self.floatX = float(self.rect.x)
+        self.floatY = float(self.rect.y)
+        bad_list.add(self)
         
+    def update(self):
+        if self.rect.x < -50:
+            self.kill()
+        self.floatX -= 0.8 + self.moveSpeed*0.5
+        self.rect.x = int(self.floatX)
         
-class PlayerAtom(Atom):
-    def __init__ (self,at_num,posX,posY):
-        Atom.__init__(self,at_num)
+       
+class PlayerBall(MagBall):
+    def __init__ (self,number,posX,posY):
+        MagBall.__init__(self,number,blue,False,False)
         self.fallBeginT = 400
         self.fallBeginY = posY
         self.rect.x = posX
@@ -103,12 +141,15 @@ def jump_bar():
         if moveY:
             moveY = False
             player.startFall()
+
     
                                      
 pygame.init()
 #Things must be do first
 full_list = pygame.sprite.LayeredUpdates()
-atom_list = pygame.sprite.LayeredUpdates()
+ball_list = pygame.sprite.LayeredUpdates()
+bad_list = pygame.sprite.Group()
+
 pygame.mouse.set_visible(False)
 
 #Def varibles
@@ -120,7 +161,8 @@ font = pygame.font.SysFont("comicsansms",30)
 pygame.display.set_caption("My Game")
 
 #init player
-player = PlayerAtom(1,200,400)
+player = PlayerBall(1,200,400)
+BadBall()
 moveY = False
 
 
@@ -162,7 +204,26 @@ while done == False:
     mY = (pygame.mouse.get_pos())[1]
     frames = 60
     #logic
-    coll_mouse_list = atom_list.get_sprites_at((mX,mY))
+    #coll_mouse_list = atom_list.get_sprites_at((mX,mY))
+
+    coll_bad_player = pygame.sprite.spritecollide(player,bad_list,True)
+    for badBall in coll_bad_player:
+        if badBall.mu == False and badBall.di == False:
+            player.number += badBall.number
+        else:
+            if badBall.mu:
+                player.number = player.number*badBall.number
+            elif badBall.di:
+                if player.number%badBall.number == 0:
+                    player.number = player.number/badBall.number
+                else:
+                    print 'not integer'
+        player.redraw()
+                    
+                    
+                
+        
+    
     
     #draw
     screen.fill(grey)
