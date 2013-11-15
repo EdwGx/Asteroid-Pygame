@@ -1,4 +1,5 @@
 #physic.py
+import random
 
 def freeFall(time_after,start_y):
     return int((start_y + (9.81* time_after * time_after / 100000)))
@@ -55,6 +56,9 @@ def number_collide(spriteA,spriteB,dokillA,dokillB):
         spriteB.kill()
     spriteA.redraw()
     return False
+
+def getRandBool(chanceTrue = 50):
+    return (random.randrange(100)<chanceTrue)
         
         
         
