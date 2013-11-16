@@ -4,6 +4,7 @@ import random
 from physic import*
 from color import*
 import MagBall
+import Block
 
 def addBad():
     bad = MagBall.BadBall()
@@ -53,6 +54,7 @@ pygame.init()
 full_list = pygame.sprite.LayeredUpdates()
 ball_list = pygame.sprite.LayeredUpdates()
 bad_list = pygame.sprite.Group()
+move_list = pygame.sprite.Group()
 
 pygame.mouse.set_visible(False)
 
@@ -60,6 +62,10 @@ pygame.mouse.set_visible(False)
 sizeX = 800
 sizeY = 500
 jumPower = 1
+bad_timer = 0
+block_timer = 0
+move_dis = 0.0
+
 screen = pygame.display.set_mode([sizeX,sizeY])
 font = pygame.font.SysFont("comicsansms",30)
 pygame.display.set_caption("My Game")
@@ -68,11 +74,8 @@ pygame.display.set_caption("My Game")
 player = MagBall.PlayerBall(1,200,400)
 player.add(full_list,ball_list)
 
-player.add(full_list,ball_list)
 
 moveY = False
-
-
 done = False
 
  
@@ -89,6 +92,9 @@ while done == False:
 
             if event.key == pygame.K_e:
                 addBad()
+            if event.key == pygame.K_q:
+                block = Block.Block()
+                block.add(full_list,move_list)
                 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE:
@@ -109,6 +115,9 @@ while done == False:
 
     mX = (pygame.mouse.get_pos())[0]
     mY = (pygame.mouse.get_pos())[1]
+
+    
+    
     frames = 60
     #logic
     #coll_mouse_list = atom_list.get_sprites_at((mX,mY))
@@ -125,22 +134,41 @@ while done == False:
             player.losted = True
             print ('you lost')
 
+    
+
+    if block_timer <= move_dis:
+        block = Block.Block()
+        block.add(full_list,move_list)
+        block_timer = move_dis + random.randint(10,14)*48
+        if bad_timer <= 60:
+            bad_timer = 60
+
+    if bad_timer <= move_dis:
+        addBad()
+        bad_timer = move_dis + random.randint(2,5)*48
+
+    if player.rect.y == (sizeY - player.radius*2):
+        move_list.update(0)
+        bad_list.update(0,move_list)
+    else:
+        move_list.update(0.8)
+        bad_list.update(0.8,move_list)
+        move_dis += 0.8
     #draw
     screen.fill(grey)
-    #test
-    t = pygame.time.get_ticks()
-    timeLabel = font.render(str(t),True,green)
-    screen.blit(timeLabel,(300,300))
-
+    
     #real draw
-    full_list.update()
+
+        
+        
+    player.update()
     full_list.draw(screen)
 
     jump_bar()
-    draw_mouse()
+    #draw_mouse()
     #draw end
      
-    pygame.display.flip()
+     pygame.display.flip()
     clock.tick(frames)
      
 

@@ -75,11 +75,50 @@ class BadBall(MagBall):
         self.floatX = float(self.rect.x)
         self.floatY = float(self.rect.y)
         
-    def update(self):
-        if self.rect.x < -50:
-            self.kill()
-        self.floatX -= 0.8 + self.moveSpeed*0.5
+    def update(self,x_speed,block_group):
+
+        if self.rect.y + self.radius*2 >= sizeY:
+            self.moveDir = 2
+        elif self.rect.y <= 0:
+            self.moveDir = 0
+            
+        coll_block = 0
+        coll_bool = False
+        for b in block_group:
+            if pygame.sprite.collide_rect(b,self):
+                coll_block = get_collideDir(b,self)
+                coll_bool = True
+                obj_block = b
+                break
+        
+        if coll_block == 1 and coll_bool:
+            self.floatX -= x_speed + self.moveSpeed*0.5
+            if self.moveDir == 2:
+                self.floatY += (1 - self.moveDir)
+            else:
+                self.floatY = float(obj_block.rect.top-self.rect.height)
+        #--#
+        elif coll_block == 2 and coll_bool:
+            self.floatX -= x_speed + self.moveSpeed*0.5
+            if self.moveDir == 0:
+                self.floatY += (1 - self.moveDir)
+            else:
+                self.floatY = float(obj_block.rect.bottom)
+        #--#
+        elif coll_block == 4 and coll_bool:
+            self.floatY += (1 - self.moveDir)
+        #--#
+        else:
+            self.floatX -= x_speed + self.moveSpeed*0.5
+            self.floatY += (1 - self.moveDir)
+        
         self.rect.x = int(self.floatX)
+       
+        #self.floatX -= x_speed
+        self.rect.y = int(self.floatY)
+        if (self.rect.x < -50) or (
+            (self.rect.top + 1 >= sizeY) or (self.rect.bottom - 1 <= 0)):
+            self.kill()
         
        
 class PlayerBall(MagBall):
@@ -97,7 +136,7 @@ class PlayerBall(MagBall):
             playerLosted = True
             print ('you lost')
 
-        if self.freeFall and self.number>0:
+        if self.freeFall:
             if (sizeY - self.radius*2)>self.rect.y : 
                 self.rect.y = freeFall(pygame.time.get_ticks()-self.fallBeginT,self.fallBeginY)
             else:
