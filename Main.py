@@ -35,7 +35,7 @@ def jump_bar():
     global jumPower, moveY
     if jumPower > 0:
         if jumPower > 0.3:
-            draw_color = green
+            draw_color = darkgreen
         else:
             draw_color = red
         pygame.draw.rect(screen,
@@ -64,6 +64,7 @@ sizeY = 500
 jumPower = 1
 bad_timer = 0
 block_timer = 0
+player_timer = 0.0
 move_dis = 0.0
 
 screen = pygame.display.set_mode([sizeX,sizeY])
@@ -144,6 +145,7 @@ while done == False:
             bad_timer = 60
 
     if bad_timer <= move_dis:
+        print player_timer
         addBad()
         bad_timer = move_dis + random.randint(2,5)*48
 
@@ -154,11 +156,18 @@ while done == False:
         move_list.update(0.8)
         bad_list.update(0.8,move_list)
         move_dis += 0.8
+        player_timer += 0.8
     #draw
     screen.fill(grey)
     
     #real draw
+    scoreLabel = font.render(('Score '+str(player.number)),True,white)
+    screen.blit(scoreLabel,(10,10))
 
+    distanceLabel = font.render((str(int(player_timer/3600*100))+'%'),True,white)
+    screen.blit(distanceLabel,(sizeX - 10 - distanceLabel.get_width(),10))
+    
+    
         
         
     player.update()
@@ -168,7 +177,7 @@ while done == False:
     #draw_mouse()
     #draw end
      
-     pygame.display.flip()
+    pygame.display.flip()
     clock.tick(frames)
      
 
