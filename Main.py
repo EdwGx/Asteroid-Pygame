@@ -49,6 +49,24 @@ def jump_bar():
             moveY = False
             player.startFall()
 
+def init_game():
+    global jumPower,bad_timer,block_timer,player_timer,move_dis
+    global player,full_list,ball_list,bad_list,move_list,moveY
+    jumPower = 1
+    bad_timer = 0
+    block_timer = 0
+    player_timer = 0.0
+    move_dis = 0.0
+    player.kill()
+    full_list.empty()
+    ball_list.empty()
+    bad_list.empty()
+    move_list.empty()
+    moveY = False
+    player = MagBall.PlayerBall(1,200,-100)
+    player.add(full_list,ball_list)
+    
+
     
                                      
 pygame.init()
@@ -75,8 +93,9 @@ font = pygame.font.SysFont("comicsansms",30)
 pygame.display.set_caption("My Game")
 
 #init player
-player = MagBall.PlayerBall(1,200,400)
+player = MagBall.PlayerBall(1,200,-100)
 player.add(full_list,ball_list)
+player.startFall()
 
 
 moveY = False
@@ -154,18 +173,13 @@ while done == False:
                 bad_timer = 60
 
         if bad_timer <= move_dis:
-            print player_timer
             addBad()
             bad_timer = move_dis + random.randint(2,5)*48
     
-        if player.rect.y == (sizeY - player.radius*2):
-            move_list.update(0)
-            bad_list.update(0,move_list)
-        else:
-            move_list.update(0.8)
-            bad_list.update(0.8,move_list)
-            move_dis += 0.8
-            player_timer += 0.8
+        move_list.update(player.moveSpeed)
+        bad_list.update(player.moveSpeed,move_list)
+        move_dis += player.moveSpeed
+        player_timer += player.moveSpeed
         if player.losted:
             scene = 3
             pygame.mouse.set_visible(True)
@@ -182,7 +196,7 @@ while done == False:
     
         
         
-        player.update()
+        player.update(move_list)
         full_list.draw(screen)
 
         jump_bar()
@@ -195,6 +209,7 @@ while done == False:
     if scene == 3:
         if end.draw(screen):
             pygame.mouse.set_visible(False)
+            init_game()
             scene = 2
      
 

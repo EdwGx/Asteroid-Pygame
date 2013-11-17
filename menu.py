@@ -25,6 +25,10 @@ def draw(screen):
             pygame.draw.rect(screen,darkgreen,rect1)
     else:
         pygame.draw.rect(screen,green,rect1)
+    font = pygame.font.SysFont("comicsansms",30)
+    Label = font.render('Start',True,white)
+    screen.blit(Label,
+                ((sizeX - Label.get_width())/2,(sizeY - Label.get_height())/2))
     pygame.display.flip()
     clock.tick(60)
     

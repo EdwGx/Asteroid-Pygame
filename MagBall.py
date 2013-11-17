@@ -130,17 +130,40 @@ class PlayerBall(MagBall):
         self.rect.y = posY
         self.freeFall = True
         self.losted = False
-    def update(self):
+        self.moveSpeed = 0 
+    def update(self,block_group):
         global sizeY
         if self.number == 0:
-            playerLosted = True
-            print ('you lost')
+            self.losted = True
 
         if self.freeFall:
             if (sizeY - self.radius*2)>self.rect.y : 
                 self.rect.y = freeFall(pygame.time.get_ticks()-self.fallBeginT,self.fallBeginY)
             else:
                 self.rect.y = sizeY - self.radius*2
+                
+        if self.rect.y < (sizeY - self.radius*2):
+            self.moveSpeed = 0.8
+        else:
+            self.moveSpeed = 0
+        #block
+        coll_block = 0
+        coll_bool = False
+        for b in block_group:
+            if pygame.sprite.collide_rect(b,self):
+                coll_block = get_collideDir(b,self)
+                coll_bool = True
+                obj_block = b
+                break
+        
+        if coll_block == 1 and coll_bool:
+            self.rect.y = int(obj_block.rect.top-self.rect.height)
+        #--#
+        elif coll_block == 2 and coll_bool:
+            self.rect.y = int(obj_block.rect.bottom)
+        #--#
+        elif coll_block == 3 and coll_bool:
+            self.moveSpeed = 0
 
                 
     def startFall(self):
