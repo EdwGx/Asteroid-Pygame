@@ -5,6 +5,8 @@ from physic import*
 from color import*
 import MagBall
 import Block
+import menu
+import end
 
 def addBad():
     bad = MagBall.BadBall()
@@ -56,7 +58,7 @@ ball_list = pygame.sprite.LayeredUpdates()
 bad_list = pygame.sprite.Group()
 move_list = pygame.sprite.Group()
 
-pygame.mouse.set_visible(False)
+pygame.mouse.set_visible(True)
 
 #Def varibles
 sizeX = 800
@@ -66,6 +68,7 @@ bad_timer = 0
 block_timer = 0
 player_timer = 0.0
 move_dis = 0.0
+scene = 1 #1:start menu 2:game 3:retry,win,quit
 
 screen = pygame.display.set_mode([sizeX,sizeY])
 font = pygame.font.SysFont("comicsansms",30)
@@ -83,102 +86,116 @@ done = False
 clock = pygame.time.Clock()
  
 while done == False:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            done = True
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                moveY = True
-                player.freeFall = False
+    if scene == 1:
+        if menu.draw(screen):
+            pygame.mouse.set_visible(False)
+            scene = 2
+            
 
-            if event.key == pygame.K_e:
-                addBad()
-            if event.key == pygame.K_q:
-                block = Block.Block()
-                block.add(full_list,move_list)
+        
+    if scene == 2:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    moveY = True
+                    player.freeFall = False
+    
+                if event.key == pygame.K_e:
+                    addBad()
+                if event.key == pygame.K_q:
+                    block = Block.Block()
+                    block.add(full_list,move_list)
+                    
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_SPACE:
+                    moveY = False
+                    player.startFall()
+            
+        if moveY and jumPower > 0:
+            if player.rect.y >= 2:
+                player.rect.y -= 2
+            else:
+                player.rect.y = 0
                 
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_SPACE:
-                moveY = False
-                player.startFall()
-        
-    if moveY and jumPower > 0:
-        if player.rect.y >= 2:
-            player.rect.y -= 2
+            jumPower -= 0.02
         else:
-            player.rect.y = 0
-            
-        jumPower -= 0.02
-    else:
-        if jumPower <= 0.98:
-            jumPower += 0.02
-            
-
-    mX = (pygame.mouse.get_pos())[0]
-    mY = (pygame.mouse.get_pos())[1]
-
+            if jumPower <= 0.98:
+                jumPower += 0.02
+                
     
+        mX = (pygame.mouse.get_pos())[0]
+        mY = (pygame.mouse.get_pos())[1]
     
-    frames = 60
-    #logic
-    #coll_mouse_list = atom_list.get_sprites_at((mX,mY))
-    for badBall in bad_list:
-        for ballB in pygame.sprite.spritecollide(badBall,bad_list,False,pygame.sprite.collide_circle):
-            if not(badBall == ballB):
-                number_collide(badBall,ballB,True,True)
+        
+    
+        frames = 60
+        #logic
+        #coll_mouse_list = atom_list.get_sprites_at((mX,mY))
+        for badBall in bad_list:
+            for ballB in pygame.sprite.spritecollide(badBall,bad_list,False,pygame.sprite.collide_circle):
+                if not(badBall == ballB):
+                    number_collide(badBall,ballB,True,True)
             
         
 
-    for badBall in pygame.sprite.spritecollide(player,bad_list,True,pygame.sprite.collide_circle):
-        kill_player = number_collide(player,badBall,False,True)
-        if kill_player:
-            player.losted = True
-            print ('you lost')
+        for badBall in pygame.sprite.spritecollide(player,bad_list,True,pygame.sprite.collide_circle):
+            kill_player = number_collide(player,badBall,False,True)
+            if kill_player:
+                player.losted = True
 
+
+        if block_timer <= move_dis:
+            block = Block.Block()
+            block.add(full_list,move_list)
+            block_timer = move_dis + random.randint(10,14)*48
+            if bad_timer <= 60:
+                bad_timer = 60
+
+        if bad_timer <= move_dis:
+            print player_timer
+            addBad()
+            bad_timer = move_dis + random.randint(2,5)*48
     
-
-    if block_timer <= move_dis:
-        block = Block.Block()
-        block.add(full_list,move_list)
-        block_timer = move_dis + random.randint(10,14)*48
-        if bad_timer <= 60:
-            bad_timer = 60
-
-    if bad_timer <= move_dis:
-        print player_timer
-        addBad()
-        bad_timer = move_dis + random.randint(2,5)*48
-
-    if player.rect.y == (sizeY - player.radius*2):
-        move_list.update(0)
-        bad_list.update(0,move_list)
-    else:
-        move_list.update(0.8)
-        bad_list.update(0.8,move_list)
-        move_dis += 0.8
-        player_timer += 0.8
-    #draw
-    screen.fill(grey)
+        if player.rect.y == (sizeY - player.radius*2):
+            move_list.update(0)
+            bad_list.update(0,move_list)
+        else:
+            move_list.update(0.8)
+            bad_list.update(0.8,move_list)
+            move_dis += 0.8
+            player_timer += 0.8
+        if player.losted:
+            scene = 3
+            pygame.mouse.set_visible(True)
+        #draw
+        screen.fill(grey)
     
-    #real draw
-    scoreLabel = font.render(('Score '+str(player.number)),True,white)
-    screen.blit(scoreLabel,(10,10))
+        #real draw
+        scoreLabel = font.render(('Score '+str(player.number)),True,white)
+        screen.blit(scoreLabel,(10,10))
 
-    distanceLabel = font.render((str(int(player_timer/3600*100))+'%'),True,white)
-    screen.blit(distanceLabel,(sizeX - 10 - distanceLabel.get_width(),10))
+        distanceLabel = font.render((str(int(player_timer/3600*100))+'%'),True,white)
+        screen.blit(distanceLabel,(sizeX - 10 - distanceLabel.get_width(),10))
     
     
         
         
-    player.update()
-    full_list.draw(screen)
+        player.update()
+        full_list.draw(screen)
 
-    jump_bar()
-    #draw_mouse()
-    #draw end
+        jump_bar()
+        #draw_mouse()
+        #draw end
      
-    pygame.display.flip()
-    clock.tick(frames)
+        pygame.display.flip()
+        clock.tick(frames)
+
+    if scene == 3:
+        if end.draw(screen):
+            pygame.mouse.set_visible(False)
+            scene = 2
      
 
 pygame.quit()
