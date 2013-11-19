@@ -19,18 +19,11 @@ class Block(pygame.sprite.DirtySprite):
     def __init__(self):
         self._layer = 3
         pygame.sprite.DirtySprite.__init__(self)
-        self.good = physic.getRandBool(30)
-        self.moveSpeed = random.randrange(1)
+        self.health = 8
+        self.moveSpeed = random.randrange(2)
         self.moveUp = True
         self.image = pygame.Surface((56,156))
-        if self.good:
-            self.image.fill(green)
-            draw_plus(self.image,(28,48))
-            draw_plus(self.image,(28,108))
-        else:
-            self.image.fill(red)
-            draw_minus(self.image,(28,48))
-            draw_minus(self.image,(28,108))
+        self.redraw()
         self.rect = self.image.get_rect()
         self.rect.x = sizeX + 60
         self.rect.y = 0
@@ -57,4 +50,12 @@ class Block(pygame.sprite.DirtySprite):
 
         if self.rect.x < -80:
             self.kill()
+
+    def redraw(self):
+        self.image.fill(green)
+        if self.health < 8:
+            height = int(156*self.health/8)
+            pygame.draw.rect(self.image,red,(0,0,56,156-height))
+        draw_minus(self.image,(26,48))
+        draw_minus(self.image,(26,108))
         

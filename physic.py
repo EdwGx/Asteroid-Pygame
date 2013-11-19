@@ -5,7 +5,7 @@ import pygame
 def freeFall(time_after,start_y):
     return int((start_y + (9.81* time_after * time_after / 100000)))
 
-def number_collide(spriteA,spriteB,dokillA,dokillB):
+'''def number_collide(spriteA,spriteB,dokillA,dokillB):
     if spriteA.number == 0:
         if dokillA:
             spriteA.kill()
@@ -56,7 +56,7 @@ def number_collide(spriteA,spriteB,dokillA,dokillB):
     if dokillB:
         spriteB.kill()
     spriteA.redraw()
-    return False
+    return False'''
 
 def getRandBool(chanceTrue = 50):
     return (random.randrange(100)<chanceTrue)
