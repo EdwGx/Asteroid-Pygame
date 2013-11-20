@@ -114,14 +114,14 @@ class Missile(pygame.sprite.DirtySprite):
         self._layer = 3
         self.image = pygame.image.load('missile.png')
         self.rect = self.image.get_rect()
-        self.rect.x = -200
+        self.rect.x = -135
         self.rect.y = 200
     def update(self):
         if self.rect.x > 0:
             mY = (pygame.mouse.get_pos())[1]
-            if self.rect.y -2 > mY:
+            if self.rect.y -1 > mY:
                 self.rect.y -= 2
-            elif self.rect.y +2 < mY:
+            elif self.rect.y +1 < mY:
                 self.rect.y += 2
             else:
                 self.rect.y = mY
@@ -145,7 +145,7 @@ class PlayerBall(pygame.sprite.DirtySprite):
         self.rect.y = posY
         self.freeFall = True
         self.losted = False
-        self.moveSpeed = 0
+        self.moveSpeed = 1.2
     def update(self,block_group):
         global sizeY
         if self.freeFall:
@@ -153,12 +153,7 @@ class PlayerBall(pygame.sprite.DirtySprite):
                 self.rect.y = freeFall(pygame.time.get_ticks()-self.fallBeginT,self.fallBeginY)
             else:
                 self.rect.y = sizeY - self.rect.height
-                
-        if self.rect.y < (sizeY - self.rect.height):
-            self.moveSpeed = 0.8
-        else:
-            self.moveSpeed = 0
-                
+
     def startFall(self):
         self.fallBeginT = pygame.time.get_ticks()
         self.fallBeginY = self.rect.y

@@ -7,6 +7,8 @@ import MagBall
 import Block
 import menu
 import end
+import credit
+
 
 class bullet_bar (object):
     def __init__(self):
@@ -119,7 +121,7 @@ class missile_controller(object):
     def draw(self,d_surface):
         if self.current_timer < self.call_timer:
             self.current_timer += 1
-        elif self.current_timer < self.call_timer+120:
+        elif self.current_timer < self.call_timer+140:
             global full_list
             if self.m_existed == False:
                 missile = MagBall.Missile()
@@ -127,9 +129,9 @@ class missile_controller(object):
                 self.m_existed = True
             point_list =((0,198),
                          (0,222),
-                         (120,222),
-                         (140,210),
-                         (120,198))
+                         (140,222),
+                         (160,210),
+                         (140,198))
             pygame.draw.polygon(d_surface,green,point_list,0)
             font = pygame.font.SysFont("Lucida Console",15,True)
             label = font.render('GUIDE MISSILE',True,white)
@@ -188,10 +190,15 @@ def jump_bar():
             moveY = False
             player.startFall()
 
+def next_level():
+    global player,spawn_speed
+    spawn_speed += 2
+    player.moveSpeed += 0.4
+
 def init_game():
     global jumPower,bad_timer,block_timer,player_timer,move_dis
-    global player,full_list,ball_list,bad_list,move_list,moveY
-    global shoot_running,score,shoot_timer,bullet_bar,health_bar
+    global player,full_list,ball_list,bad_list,move_list,moveY,time_run
+    global shoot_running,score,shoot_timer,bullet_bar,health_bar,spawn_speed
     jumPower = 1
     bad_timer = 0
     block_timer = 0
@@ -200,6 +207,7 @@ def init_game():
     score = 0
     shoot_timer = 0
     shoot_running = 0
+    spawn_speed = 1
     player.kill()
 
     bullet_bar.reinit()
@@ -238,10 +246,11 @@ block_timer = 0
 player_timer = 0.0
 shoot_timer = 0
 shoot_running = 0
+spawn_speed = 1
 
 move_dis = 0.0
 score = 0 
-scene = 1 #1:start menu 2:game 3:retry,win,quit
+scene = 1 #1:start menu 2:game 3:retry,win,quit 4:credit
 
 background = pygame.image.load('background.jpg')
 screen = pygame.display.set_mode([sizeX,sizeY])
@@ -265,9 +274,13 @@ clock = pygame.time.Clock()
  
 while done == False:
     if scene == 1:
-        if menu.draw(screen):
+        return_number = menu.draw(screen)
+        if return_number== 1:
             pygame.mouse.set_visible(False)
             scene = 2
+        elif return_number == 2:
+            scene = 4
+            
             
 
         
@@ -281,10 +294,9 @@ while done == False:
                     player.freeFall = False
     
                 if event.key == pygame.K_e:
-                    addBad()
+                    time_run = False
                 if event.key == pygame.K_q:
-                    block = Block.Block()
-                    block.add(full_list,move_list)
+                    next_level()
                 if event.key == pygame.K_r:
                     bullet_bar.reload_bullet()
                     
@@ -292,6 +304,8 @@ while done == False:
                 if event.key == pygame.K_SPACE:
                     moveY = False
                     player.startFall()
+                if event.key == pygame.K_e:
+                    time_run = True
                     
             if event.type == pygame.MOUSEBUTTONUP:
                 if bullet_bar.shoot():
@@ -327,6 +341,8 @@ while done == False:
                 score += 2
             else:
                 score += 1
+                pygame.mixer.music.load("expl.wav")
+                pygame.mixer.music.play(1)
 
         coll_list = pygame.sprite.groupcollide(missile_list,move_list,True,True)
         score += (len(coll_list)*3)
@@ -349,6 +365,7 @@ while done == False:
                 player.losted = True
                 
                 
+                
         
         coll_list = pygame.sprite.groupcollide(bad_list,g_bullet,True,True)
         for bad in coll_list:
@@ -357,6 +374,9 @@ while done == False:
 
             else:
                 score += 1
+                pygame.mixer.music.load("expl.wav")
+                pygame.mixer.music.play(1)
+            
 
         coll_list = pygame.sprite.groupcollide(move_list,g_bullet,False,True)
         for bad in coll_list:
@@ -390,13 +410,13 @@ while done == False:
             block = Block.Block()
             block.add(full_list,move_list)
 
-            block_timer = move_dis + random.randint(10,14)*48
+            block_timer = move_dis + random.randint(10,14)*48 - spawn_speed
             if bad_timer <= 60:
                 bad_timer = 60
 
         if bad_timer <= move_dis:
             addBad()
-            bad_timer = move_dis + random.randint(2,5)*48
+            bad_timer = move_dis + random.randint(2,5)*48 - spawn_speed
     
         move_list.update(player.moveSpeed)
         bad_list.update(player.moveSpeed,move_list)
@@ -404,6 +424,8 @@ while done == False:
 
         player_timer += player.moveSpeed
         if player.losted:
+            pygame.mixer.music.load("expl.wav")
+            pygame.mixer.music.play(1)
             scene = 3
             pygame.mouse.set_visible(True)
         #draw
@@ -430,11 +452,16 @@ while done == False:
         pygame.display.flip()
         clock.tick(frames)
 
+
     if scene == 3:
         if end.draw(screen,score):
             pygame.mouse.set_visible(False)
             init_game()
             scene = 2
+            
+    if scene == 4:
+        if credit.draw(screen):
+            scene = 1
      
 
 pygame.quit()
