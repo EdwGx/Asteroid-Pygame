@@ -5,6 +5,7 @@ from color import*
 clock = pygame.time.Clock()
 sizeX = 800
 sizeY = 500
+background = pygame.image.load('background.jpg')
 
 def draw(screen):
     mouse_up = False
@@ -17,7 +18,7 @@ def draw(screen):
             mouse_up = True
     mX = (pygame.mouse.get_pos())[0]
     mY = (pygame.mouse.get_pos())[1]
-    screen.fill(grey)
+    screen.blit(background,background.get_rect())
     if rect1.collidepoint(mX,mY):
         if mouse_up:
             return True

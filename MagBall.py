@@ -28,36 +28,17 @@ class bullet(pygame.sprite.DirtySprite):
             self.rect.x -= 3
             if self.rect.x <= -30:
                 self.kill()
-        
 
 class BadBall(pygame.sprite.DirtySprite):
     def __init__ (self):
-        
         pygame.sprite.DirtySprite.__init__(self)
         self._layer = 2
-        self.good = getRandBool(70)
-        if self.good:
-            color = green
-        else:
-            color = red
-        self.radius = 30
-        self.image = pygame.Surface((self.radius*2,self.radius*2),flags=pygame.SRCALPHA)
-        self.image.convert_alpha()
-        pygame.draw.circle(self.image,color,(self.radius,self.radius),30,0)
-        self.rect = self.image.get_rect()
-        
-        startY = random.randrange(sizeY-60)
         self.moveSpeed = random.randrange(2)
         self.moveDir = random.randrange(2)
-        self.rect.x = sizeX + 30
-        self.rect.y = startY
-        self.floatX = float(self.rect.x)
-        self.floatY = float(self.rect.y)
 
-        
     def update(self,x_speed,block_group):
 
-        if self.rect.y + self.radius*2 >= sizeY:
+        if self.rect.y + self.rect.height >= sizeY:
             self.moveDir = 2
         elif self.rect.y <= 0:
             self.moveDir = 0
@@ -102,10 +83,56 @@ class BadBall(pygame.sprite.DirtySprite):
         if (self.rect.x < -50) or (
             (self.rect.top + 1 >= sizeY) or (self.rect.bottom - 1 <= 0)):
             self.kill()
+
+class Asteroid(BadBall):
+    def __init__ (self):
+        BadBall.__init__(self)
+        self.good = True
+        self.image = pygame.image.load('asteroid.png')
+        self.rect = self.image.get_rect()
+        startY = random.randrange(sizeY-60)
+        self.rect.x = sizeX + 30
+        self.rect.y = startY
+        self.floatX = float(self.rect.x)
+        self.floatY = float(self.rect.y)
+
+class Bomb(BadBall):
+    def __init__ (self):
+        BadBall.__init__(self)
+        self.good = False
+        self.image = pygame.image.load('bomb.png')
+        self.rect = self.image.get_rect()
+        startY = random.randrange(sizeY-60)
+        self.rect.x = sizeX + 30
+        self.rect.y = startY
+        self.floatX = float(self.rect.x)
+        self.floatY = float(self.rect.y)
         
-       
+class Missile(pygame.sprite.DirtySprite):
+    def __init__ (self):
+        pygame.sprite.DirtySprite.__init__(self)
+        self._layer = 3
+        self.image = pygame.image.load('missile.png')
+        self.rect = self.image.get_rect()
+        self.rect.x = -200
+        self.rect.y = 200
+    def update(self):
+        if self.rect.x > 0:
+            mY = (pygame.mouse.get_pos())[1]
+            if self.rect.y -2 > mY:
+                self.rect.y -= 2
+            elif self.rect.y +2 < mY:
+                self.rect.y += 2
+            else:
+                self.rect.y = mY
+        self.rect.x += 3
+        if self.rect.x > 810:
+            self.kill()
+                
+        
+
 class PlayerBall(pygame.sprite.DirtySprite):
-    def __init__ (self,number,posX,posY):
+    def __init__ (self,posX,posY):
         #self._layer = 2
         pygame.sprite.DirtySprite.__init__(self)
         self._layer = 2
