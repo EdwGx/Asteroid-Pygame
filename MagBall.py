@@ -32,49 +32,18 @@ class bullet(pygame.sprite.DirtySprite):
 class BadBall(pygame.sprite.DirtySprite):
     def __init__ (self):
         pygame.sprite.DirtySprite.__init__(self)
-        self._layer = 2
         self.moveSpeed = random.randrange(2)
         self.moveDir = random.randrange(2)
 
-    def update(self,x_speed,block_group):
+    def update(self,x_speed):
 
         if self.rect.y + self.rect.height >= sizeY:
             self.moveDir = 2
         elif self.rect.y <= 0:
             self.moveDir = 0
             
-        coll_block = 0
-        coll_bool = False
-        for b in block_group:
-            if pygame.sprite.collide_rect(b,self):
-                coll_block = get_collideDir(b,self)
-                coll_bool = True
-                obj_block = b
-                break
-        
-        if coll_block == 1 and coll_bool:
-            self.floatX -= x_speed + self.moveSpeed*0.5
-            if self.moveDir == 2:
-                self.floatY += (1 - self.moveDir)
-            else:
-                self.floatY = float(obj_block.rect.top-self.rect.height)
-        #--#
-        elif coll_block == 2 and coll_bool:
-            self.floatX -= x_speed + self.moveSpeed*0.5
-            if self.moveDir == 0:
-                self.floatY += (1 - self.moveDir)
-            else:
-                self.floatY = float(obj_block.rect.bottom)
-        #--#
-        elif coll_block == 4 and coll_bool:
-            self.floatY += (1 - self.moveDir)
-        #--#
-        elif coll_block == 5 and coll_bool:
-            self.kill()
-        
-        else:
-            self.floatX -= x_speed + self.moveSpeed*0.5
-            self.floatY += (1 - self.moveDir)
+        self.floatX -= x_speed + self.moveSpeed*0.5
+        self.floatY += (1 - self.moveDir)
         
         self.rect.x = int(self.floatX)
        
@@ -87,6 +56,7 @@ class BadBall(pygame.sprite.DirtySprite):
 class Asteroid(BadBall):
     def __init__ (self):
         BadBall.__init__(self)
+        self._layer = 4
         self.good = True
         self.image = pygame.image.load('asteroid.png')
         self.rect = self.image.get_rect()
@@ -99,6 +69,7 @@ class Asteroid(BadBall):
 class Bomb(BadBall):
     def __init__ (self):
         BadBall.__init__(self)
+        self._layer = 5
         self.good = False
         self.image = pygame.image.load('bomb.png')
         self.rect = self.image.get_rect()
@@ -111,7 +82,7 @@ class Bomb(BadBall):
 class Missile(pygame.sprite.DirtySprite):
     def __init__ (self):
         pygame.sprite.DirtySprite.__init__(self)
-        self._layer = 3
+        self._layer = 2
         self.image = pygame.image.load('missile.png')
         self.rect = self.image.get_rect()
         self.rect.x = -135

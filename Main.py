@@ -82,7 +82,7 @@ class health_bar (object):
     def draw(self,d_surface):
         x = 10
         y = 440
-        heal_time = 4000 #ms
+        heal_time = 3000 #ms
         if self.losing:
             if self.health - self.d_health <= 0:
                 self.losing = False
@@ -91,8 +91,8 @@ class health_bar (object):
             else:
                 self.d_health -= 4
         elif self.quick_check:
-            if self.health < 96:
-                self.health += 0.5
+            if self.health < 100:
+                self.health += 0.05
                 self.d_health = self.health
             else:
                 self.health = 100
@@ -100,6 +100,9 @@ class health_bar (object):
         elif (pygame.time.get_ticks() - self.lastHit) >= heal_time:
             self.quick_check = True        
         pygame.draw.rect(d_surface,red,(x,y,int(150*self.d_health/self.max),20))
+        font = pygame.font.SysFont("Lucida Console",15,True)
+        label = font.render(str(int(self.health)),True,white)
+        d_surface.blit(label,(x+1,y+1))
 
     def hit(self,health_lose):
         self.quick_check = False
@@ -389,9 +392,9 @@ while done == False:
                 
         if pygame.time.get_ticks() - shoot_timer > 600 and shoot_running > 0:
             if shoot_block.alive():
-                bullet = MagBall.bullet(shoot_block.rect.x -4,shoot_block.rect.y+48,False)
+                bullet = MagBall.bullet(shoot_block.rect.x -4,shoot_block.rect.y+10,False)
                 bullet.add(b_bullet,full_list)
-                bullet = MagBall.bullet(shoot_block.rect.x-4,shoot_block.rect.y+108,False)
+                bullet = MagBall.bullet(shoot_block.rect.x-4,shoot_block.rect.y+146,False)
                 bullet.add(b_bullet,full_list)
                 shoot_running -= 1
                 shoot_timer = pygame.time.get_ticks()
@@ -419,7 +422,7 @@ while done == False:
             bad_timer = move_dis + random.randint(2,5)*48 - spawn_speed
     
         move_list.update(player.moveSpeed)
-        bad_list.update(player.moveSpeed,move_list)
+        bad_list.update(player.moveSpeed)
         move_dis += player.moveSpeed
 
         player_timer += player.moveSpeed

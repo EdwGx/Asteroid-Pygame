@@ -26,32 +26,33 @@ def draw(screen):
             pygame.draw.rect(screen,darkgreen,rect1)
     else:
         pygame.draw.rect(screen,green,rect1)
-    font = pygame.font.SysFont("comicsansms",30)
+    font = pygame.font.SysFont("Candara",30)
     Label = font.render('back',True,white)
     screen.blit(Label,
                 ((sizeX - Label.get_width())/2,
                  (sizeY - Label.get_height())/2 + 120))
 
-    sfont = pygame.font.SysFont("comicsansms",50)
-    creditLabel = sfont.render('Credits',True,white)
+    tfont = pygame.font.SysFont("Candara",40)
+    creditLabel = tfont.render('Created by',True,white)
     screen.blit(creditLabel,
                 ((sizeX - creditLabel.get_width())/2,
                  (sizeY - creditLabel.get_height())/2-170))
 
-    creditLabel1 = sfont.render('xxx',True,white)
+    sfont = pygame.font.SysFont("Candara",50)
+    creditLabel1 = sfont.render('Steven DesBrisay',True,white)
     screen.blit(creditLabel1,
                 ((sizeX - creditLabel1.get_width())/2,
-                 (sizeY - creditLabel1.get_height())/2-120))
+                 (sizeY - creditLabel1.get_height())/2-90))
 
-    creditLabel2 = sfont.render('xxxxx',True,white)
+    creditLabel2 = sfont.render('Edward Guo',True,white)
     screen.blit(creditLabel2,
                 ((sizeX - creditLabel2.get_width())/2,
-                 (sizeY - creditLabel2.get_height())/2-70))
+                 (sizeY - creditLabel2.get_height())/2-40))
 
-    creditLabel3 = sfont.render('xxxx',True,white)
+    creditLabel3 = sfont.render('Vincent Tran',True,white)
     screen.blit(creditLabel3,
                 ((sizeX - creditLabel3.get_width())/2,
-                 (sizeY - creditLabel3.get_height())/2-20))
+                 (sizeY - creditLabel3.get_height())/2+10))
     
     pygame.display.flip()
     clock.tick(60)
