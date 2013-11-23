@@ -13,7 +13,7 @@ def draw(screen,score,dual_player=False,score2=0):
     rect1.center = (sizeX/2,sizeY/2 +100)
 
     rect2 =  pygame.Rect(0,0,100,60)
-    rect2.center = (sizeX/2,sizeY/2 +190)
+    rect2.center = (sizeX/2,sizeY/2 +180)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()

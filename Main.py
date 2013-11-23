@@ -471,7 +471,7 @@ while done == False:
 
         player_timer += player.moveSpeed
         if player.losted:
-            pygame.mixer.music.load("expl.wav")
+            pygame.mixer.music.load("lose.wav")
             pygame.mixer.music.play(1)
             scene = 3
             pygame.mouse.set_visible(True)
@@ -670,7 +670,7 @@ while done == False:
                 player2.rect.y -= 4
 
         if player1.losted and player2.losted:
-            pygame.mixer.music.load("expl.wav")
+            pygame.mixer.music.load("lose.wav")
             pygame.mixer.music.play(1)
             scene = 6
             pygame.mouse.set_visible(True)
