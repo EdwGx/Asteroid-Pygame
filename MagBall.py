@@ -9,7 +9,8 @@ class bullet(pygame.sprite.DirtySprite):
     def __init__ (self,x,y,right = True):
         pygame.sprite.DirtySprite.__init__(self)
         self._layer = 1
-        self.go_right = right 
+        self.go_right = right
+        self.shooter = 0
         self.image = pygame.Surface((10,8),flags=pygame.SRCALPHA)
         self.image.convert_alpha()
         if self.go_right:
@@ -103,13 +104,17 @@ class Missile(pygame.sprite.DirtySprite):
         
 
 class PlayerBall(pygame.sprite.DirtySprite):
-    def __init__ (self,posX,posY):
+    def __init__ (self,posX,posY,green_pic=False):
         #self._layer = 2
         pygame.sprite.DirtySprite.__init__(self)
         self._layer = 2
-        self.image = pygame.image.load('spaceship.png')
+        if green_pic:
+            self.image = pygame.image.load('spaceship2.png')
+        else:
+            self.image = pygame.image.load('spaceship.png')
         self.rect = self.image.get_rect()
-        
+
+        self.score = 0
         self.fallBeginT = 400
         self.fallBeginY = posY
         self.rect.x = posX

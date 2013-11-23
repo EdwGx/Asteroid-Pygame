@@ -11,7 +11,9 @@ import credit
 
 
 class bullet_bar (object):
-    def __init__(self):
+    def __init__(self,x=10,y=410):
+        self.x = x
+        self.y = y
         self.max = 8
         self.bullet = self.max
         self.reloading = False
@@ -28,8 +30,6 @@ class bullet_bar (object):
             self.reloading = True
         
     def draw(self,d_surface):
-        x = 10
-        y = 410
         self.reload_time = 2
         time_left = self.reload_time-(float(pygame.time.get_ticks())-float(self.reloadTimer))/1000
 
@@ -37,19 +37,19 @@ class bullet_bar (object):
             if time_left > 0:
                 pygame.draw.rect(d_surface,
                          blue,
-                         (x,y,int(150*time_left/self.reload_time),20))
+                         (self.x,self.y,int(150*time_left/self.reload_time),20))
                 font = pygame.font.SysFont("Lucida Console",15,True)
                 label = font.render(('RELOADING [%.1fs]'%(time_left)),True,white)
-                d_surface.blit(label,(x+4,y+1))
+                d_surface.blit(label,(self.x+4,self.y+1))
             else:
                 self.reloading = False
                 self.bullet = self.max
                                     
         if self.reloading == False:
             for b_i in range(self.bullet):
-                b_x = b_i*18 + x
+                b_x = b_i*18 + self.x
                 pygame.draw.polygon(d_surface,yellow,
-                                    ((b_x,y+10),(b_x+8,y+10),(b_x+4,y)),0)
+                                    ((b_x,self.y+10),(b_x+8,self.y+10),(b_x+4,self.y)),0)
 
     def shoot(self):
         if self.bullet <= 0:
@@ -64,7 +64,9 @@ class bullet_bar (object):
             return True
 
 class health_bar (object):
-    def __init__(self):
+    def __init__(self,x=10,y=440):
+        self.x = x
+        self.y = y
         self.max = 100
         self.health = float(self.max)
         self.d_health = self.health
@@ -80,8 +82,6 @@ class health_bar (object):
         self.quick_check = False
         
     def draw(self,d_surface):
-        x = 10
-        y = 440
         heal_time = 3000 #ms
         if self.losing:
             if self.health - self.d_health <= 0:
@@ -92,17 +92,17 @@ class health_bar (object):
                 self.d_health -= 4
         elif self.quick_check:
             if self.health < 100:
-                self.health += 0.05
+                self.health += 0.1
                 self.d_health = self.health
             else:
                 self.health = 100
                 self.d_health = self.health
         elif (pygame.time.get_ticks() - self.lastHit) >= heal_time:
             self.quick_check = True        
-        pygame.draw.rect(d_surface,red,(x,y,int(150*self.d_health/self.max),20))
+        pygame.draw.rect(d_surface,red,(self.x,self.y,int(150*self.d_health/self.max),20))
         font = pygame.font.SysFont("Lucida Console",15,True)
         label = font.render(str(int(self.health)),True,white)
-        d_surface.blit(label,(x+1,y+1))
+        d_surface.blit(label,(self.x+1,self.y+1))
 
     def hit(self,health_lose):
         self.quick_check = False
@@ -200,8 +200,9 @@ def next_level():
 
 def init_game():
     global jumPower,bad_timer,block_timer,player_timer,move_dis
-    global player,full_list,ball_list,bad_list,move_list,moveY,time_run
+    global full_list,ball_list,bad_list,move_list,moveY,time_run
     global shoot_running,score,shoot_timer,bullet_bar,health_bar,spawn_speed
+    
     jumPower = 1
     bad_timer = 0
     block_timer = 0
@@ -211,20 +212,64 @@ def init_game():
     shoot_timer = 0
     shoot_running = 0
     spawn_speed = 1
-    player.kill()
-
-    bullet_bar.reinit()
-    health_bar.reinit()
-    missile_controller.reinit()
-    
+            
     full_list.empty()
     ball_list.empty()
     bad_list.empty()
     move_list.empty()
     moveY = False
-    player = MagBall.PlayerBall(200,-100)
-    player.add(full_list)
-    player.startFall()
+
+def reinit_player(number):
+    if number == 1:
+        global player,bullet_bar,health_bar,missile_controller
+        bullet_bar.reinit()
+        health_bar.reinit()
+        missile_controller.reinit()
+        
+        player = MagBall.PlayerBall(200,-100)
+        player.add(full_list)
+        player.startFall()
+        
+    elif number == 2:
+        global player1,player2,player1_move,player2_move,bullet_bar1,bullet_bar2
+        global health_bar1,health_bar2
+        bullet_bar1.reinit()
+        bullet_bar2.reinit()
+        health_bar1.reinit()
+        health_bar2.reinit()
+        
+        player1 = MagBall.PlayerBall(170,200)
+        player1.add(full_list)
+        player2 = MagBall.PlayerBall(230,400,True)
+        player2.add(full_list)
+        player1_move = 0
+        player2_move = 0
+
+def init_player(number):
+    if number == 1:
+        global player,bullet_bar,health_bar,missile_controller
+        bullet_bar = bullet_bar()
+        health_bar = health_bar()
+        missile_controller = missile_controller()
+        
+        player = MagBall.PlayerBall(200,-100)
+        player.add(full_list)
+        player.startFall()
+        
+    elif number == 2:
+        global player1,player2,player1_move,player2_move,bullet_bar1,bullet_bar2
+        global health_bar1,health_bar2
+        bullet_bar1 = bullet_bar()
+        bullet_bar2 = bullet_bar(640)
+        health_bar1 = health_bar()
+        health_bar2 = health_bar(640)
+        
+        player1 = MagBall.PlayerBall(170,200)
+        player1.add(full_list)
+        player2 = MagBall.PlayerBall(230,400,True)
+        player2.add(full_list)
+        player1_move = 0
+        player2_move = 0
 
         
                                     
@@ -236,7 +281,7 @@ bad_list = pygame.sprite.Group()
 move_list = pygame.sprite.Group()
 g_bullet = pygame.sprite.Group()
 b_bullet = pygame.sprite.Group()
-missile_list = pygame.sprite.Group() 
+missile_list = pygame.sprite.Group()
 
 pygame.mouse.set_visible(True)
 #Def varibles
@@ -253,21 +298,13 @@ spawn_speed = 1
 
 move_dis = 0.0
 score = 0 
-scene = 1 #1:start menu 2:game 3:retry,win,quit 4:credit
+scene = 1 #1:start menu 2:game 3:retry,win,quit 4:credit 5:2-Player 6:2-Player retry
 
 background = pygame.image.load('background.jpg')
 screen = pygame.display.set_mode([sizeX,sizeY])
 font = pygame.font.SysFont("comicsansms",30)
 pygame.display.set_caption("My Game")
 
-bullet_bar = bullet_bar()
-health_bar = health_bar()
-missile_controller = missile_controller()
-
-#init player
-player = MagBall.PlayerBall(200,-100)
-player.add(full_list)
-player.startFall()
 
 moveY = False
 done = False
@@ -280,8 +317,15 @@ while done == False:
         return_number = menu.draw(screen)
         if return_number== 1:
             pygame.mouse.set_visible(False)
+            init_game()
+            init_player(1)
             scene = 2
-        elif return_number == 2:
+        elif return_number== 2:
+            pygame.mouse.set_visible(False)
+            init_game()
+            init_player(2)
+            scene = 5
+        elif return_number == 3:
             scene = 4
             
             
@@ -455,15 +499,234 @@ while done == False:
         pygame.display.flip()
         clock.tick(frames)
 
+    if scene == 5:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_w:
+                    player1_move = 1
+                if event.key == pygame.K_s:
+                    player1_move = 2
+                if event.key == pygame.K_UP:
+                    player2_move = 1
+                if event.key == pygame.K_DOWN:
+                    player2_move = 2
+                    
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_d:
+                    if bullet_bar1.shoot()  and not(player1.losted):
+                        bullet = MagBall.bullet(player1.rect.centerx +40,player1.rect.centery)
+                        bullet.shooter = 1
+                        bullet.add(g_bullet,full_list)
+                if event.key == pygame.K_RIGHT:
+                    if bullet_bar2.shoot() and not(player2.losted):
+                        bullet = MagBall.bullet(player2.rect.centerx +40,player2.rect.centery)
+                        bullet.shooter = 2
+                        bullet.add(g_bullet,full_list)
+                if event.key == pygame.K_w:
+                    player1_move = 0
+                if event.key == pygame.K_s:
+                    player1_move = 0
+                if event.key == pygame.K_UP:
+                    player2_move = 0
+                if event.key == pygame.K_DOWN:
+                    player2_move = 0
+    
+            
+                    
+        mX = (pygame.mouse.get_pos())[0]
+        mY = (pygame.mouse.get_pos())[1]
+    
+        
+    
+        frames = 60
+        #logic
+        pygame.sprite.groupcollide(b_bullet,g_bullet,True,True)
+
+        if not(player1.losted):
+            coll_list = pygame.sprite.spritecollide(player1,bad_list,True)
+            for bad in coll_list:
+                if not(bad.good):
+                    alive = health_bar1.hit(90)
+                    if not(alive):
+                        player1.kill()
+                        player1.losted = True
+                else:
+                    alive = health_bar1.hit(50)
+                    if not(alive):
+                        player1.kill()
+                        player1.losted = True
+    
+            coll_list = pygame.sprite.spritecollide(player1,b_bullet,True)
+            for bad in coll_list:
+                alive = health_bar1.hit(20)
+                if not(alive):
+                    player1.kill()
+                    player1.losted = True
+                
+        if not(player2.losted):
+            coll_list = pygame.sprite.spritecollide(player2,bad_list,True)
+            for bad in coll_list:
+                if not(bad.good):
+                    alive = health_bar2.hit(90)
+                    if not(alive):
+                        player2.kill()
+                        player2.losted = True
+                else:
+                    alive = health_bar2.hit(50)
+                    if not(alive):
+                        player2.kill()
+                        player2.losted = True
+
+            coll_list = pygame.sprite.spritecollide(player2,b_bullet,True)
+            for bad in coll_list:
+                alive = health_bar2.hit(20)
+                if not(alive):
+                    player2.kill()
+                    player2.losted = True
+                
+                
+        for bad in bad_list:
+            coll_list = pygame.sprite.spritecollide(bad,g_bullet,True)
+            if len(coll_list) > 0:
+                bad.kill()
+                hit_b = coll_list[0]
+                if hit_b.shooter == 1:
+                    if bad.good:
+                        player1.score += 2
+                    else:
+                        player1.score += 1
+                        pygame.mixer.music.load("expl.wav")
+                        pygame.mixer.music.play(1)
+                elif hit_b.shooter == 2:
+                    if bad.good:
+                        player2.score += 2
+                    else:
+                        player2.score += 1
+                        pygame.mixer.music.load("expl.wav")
+                        pygame.mixer.music.play(1)
+            
+        for bad in move_list:
+            coll_list = pygame.sprite.spritecollide(bad,g_bullet,True)
+            if len(coll_list) > 0:
+                for bu in coll_list:
+                    bad.health -= 1
+                    bad.redraw()
+                    if bad.health <= 0:
+                        bad.kill()
+                        if bu.shooter == 1:
+                            player1.score += 3
+                        elif bu.shooter == 2:
+                            player2.score += 3
+                
+                
+        if pygame.time.get_ticks() - shoot_timer > 600 and shoot_running > 0:
+            if shoot_block.alive():
+                bullet = MagBall.bullet(shoot_block.rect.x -4,shoot_block.rect.y+10,False)
+                bullet.add(b_bullet,full_list)
+                bullet = MagBall.bullet(shoot_block.rect.x-4,shoot_block.rect.y+146,False)
+                bullet.add(b_bullet,full_list)
+                shoot_running -= 1
+                shoot_timer = pygame.time.get_ticks()
+            else:
+                shoot_running = 0
+                shoot_timer = pygame.time.get_ticks()
+                
+        elif pygame.time.get_ticks() - shoot_timer > 3000:
+            for b in move_list:
+                if b.rect.x > 330 and b.rect.right < sizeX-10:
+                    shoot_block = b
+                    shoot_timer = pygame.time.get_ticks()
+                    shoot_running = 4
+
+
+        if block_timer <= move_dis:
+            block = Block.Block()
+            block.add(full_list,move_list)
+
+            block_timer = move_dis + random.randint(10,14)*48 - spawn_speed
+            if bad_timer <= 60:
+                bad_timer = 60
+
+        if bad_timer <= move_dis:
+            addBad()
+            bad_timer = move_dis + random.randint(2,5)*48 - spawn_speed
+    
+        move_list.update(0.8)
+        bad_list.update(0.8)
+        move_dis += 0.8
+
+        if not(player1_move == 0):
+            if (player1_move == 1) and (player1.rect.bottom < 496):
+                player1.rect.y += 4
+            elif (player1_move == 2) and (player1.rect.top > 6):
+                player1.rect.y -= 4
+                
+        if not(player2_move == 0):
+            if (player2_move == 1) and (player2.rect.bottom < 496):
+                player2.rect.y += 4
+            elif (player2_move == 2) and (player2.rect.top > 6):
+                player2.rect.y -= 4
+
+        if player1.losted and player2.losted:
+            pygame.mixer.music.load("expl.wav")
+            pygame.mixer.music.play(1)
+            scene = 6
+            pygame.mouse.set_visible(True)
+        #draw
+        screen.blit(background,background.get_rect())
+        
+        
+        #real draw
+        scoreLabel = font.render(('Score ') + str(player1.score),True,white)
+        screen.blit(scoreLabel,(10,10))
+        
+        scoreLabel2 = font.render(('Score ') + str(player2.score),True,white)
+        screen.blit(scoreLabel2,(800-scoreLabel2.get_width()-10,10))
+    
+        g_bullet.update()
+        b_bullet.update()
+        full_list.draw(screen)
+        if not(player1.losted): 
+            bullet_bar1.draw(screen)
+            health_bar1.draw(screen)
+
+        if not(player2.losted): 
+            bullet_bar2.draw(screen)
+            health_bar2.draw(screen)
+        
+        draw_mouse()
+        #draw end
+     
+        pygame.display.flip()
+        clock.tick(frames)
+
+
 
     if scene == 3:
-        if end.draw(screen,score):
+        event_b = end.draw(screen,score) == 1
+        if event_b == 1:
             pygame.mouse.set_visible(False)
             init_game()
+            reinit_player(1)
             scene = 2
+        elif event_b == 2:
+            scene = 1
+            
             
     if scene == 4:
         if credit.draw(screen):
+            scene = 1
+
+    if scene == 6:
+        event_b = end.draw(screen,player1.score,True,player2.score)
+        if event_b == 1:
+            pygame.mouse.set_visible(False)
+            init_game()
+            reinit_player(2)
+            scene = 5
+        elif event_b == 2:
             scene = 1
      
 
