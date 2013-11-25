@@ -303,7 +303,7 @@ scene = 1 #1:start menu 2:game 3:retry,win,quit 4:credit 5:2-Player 6:2-Player r
 background = pygame.image.load('background.jpg')
 screen = pygame.display.set_mode([sizeX,sizeY])
 font = pygame.font.SysFont("comicsansms",30)
-pygame.display.set_caption("My Game")
+pygame.display.set_caption("Asteroid")
 
 
 moveY = False
