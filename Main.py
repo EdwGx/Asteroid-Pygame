@@ -9,7 +9,6 @@ import menu
 import end
 import credit
 
-
 class bullet_bar (object):
     def __init__(self,x=10,y=410):
         self.x = x
@@ -220,10 +219,10 @@ def init_game():
     moveY = False
 
 def reinit_player(number):
+    global player1,player2,player1_move,player2_move,bullet_bar1,bullet_bar2,health_bar1,health_bar2,missile_controller
     if number == 1:
-        global player,bullet_bar,health_bar,missile_controller
-        bullet_bar.reinit()
-        health_bar.reinit()
+        bullet_bar1.reinit()
+        health_bar1.reinit()
         missile_controller.reinit()
         
         player = MagBall.PlayerBall(200,-100)
@@ -231,8 +230,6 @@ def reinit_player(number):
         player.startFall()
         
     elif number == 2:
-        global player1,player2,player1_move,player2_move,bullet_bar1,bullet_bar2
-        global health_bar1,health_bar2
         bullet_bar1.reinit()
         bullet_bar2.reinit()
         health_bar1.reinit()
@@ -246,10 +243,10 @@ def reinit_player(number):
         player2_move = 0
 
 def init_player(number):
+    global player,player1,player2,player1_move,player2_move,bullet_bar1,bullet_bar2,health_bar1,health_bar2,missile_controller
     if number == 1:
-        global player,bullet_bar,health_bar,missile_controller
-        bullet_bar = bullet_bar()
-        health_bar = health_bar()
+        bullet_bar1 = bullet_bar(10)
+        health_bar1 = health_bar(10)
         missile_controller = missile_controller()
         
         player = MagBall.PlayerBall(200,-100)
@@ -257,11 +254,9 @@ def init_player(number):
         player.startFall()
         
     elif number == 2:
-        global player1,player2,player1_move,player2_move,bullet_bar1,bullet_bar2
-        global health_bar1,health_bar2
-        bullet_bar1 = bullet_bar()
+        bullet_bar1 = bullet_bar(10)
         bullet_bar2 = bullet_bar(640)
-        health_bar1 = health_bar()
+        health_bar1 = health_bar(10)
         health_bar2 = health_bar(640)
         
         player1 = MagBall.PlayerBall(170,200)
@@ -285,6 +280,8 @@ missile_list = pygame.sprite.Group()
 
 pygame.mouse.set_visible(True)
 #Def varibles
+
+
 sizeX = 800
 sizeY = 500
 jumPower = 1
@@ -308,7 +305,8 @@ pygame.display.set_caption("Asteroid")
 
 moveY = False
 done = False
-
+is_init_1 = True
+is_init_2 = True
  
 clock = pygame.time.Clock()
  
@@ -318,12 +316,20 @@ while done == False:
         if return_number== 1:
             pygame.mouse.set_visible(False)
             init_game()
-            init_player(1)
+            if is_init_1:
+                init_player(1)
+                is_init_1 = False
+            else:
+                reinit_player(1)
             scene = 2
         elif return_number== 2:
             pygame.mouse.set_visible(False)
             init_game()
-            init_player(2)
+            if is_init_2:
+                init_player(2)
+                is_init_2 = False
+            else:
+                reinit_player(2)
             scene = 5
         elif return_number == 3:
             scene = 4
@@ -342,10 +348,8 @@ while done == False:
     
                 if event.key == pygame.K_e:
                     time_run = False
-                if event.key == pygame.K_q:
-                    next_level()
                 if event.key == pygame.K_r:
-                    bullet_bar.reload_bullet()
+                    bullet_bar1.reload_bullet()
                     
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_SPACE:
@@ -355,9 +359,11 @@ while done == False:
                     time_run = True
                     
             if event.type == pygame.MOUSEBUTTONUP:
-                if bullet_bar.shoot():
+                if bullet_bar1.shoot():
                     bullet = MagBall.bullet(player.rect.centerx +40,player.rect.centery)
                     bullet.add(g_bullet,full_list)
+        if done:
+            break
                 
             
         if moveY and jumPower > 0:
@@ -397,17 +403,17 @@ while done == False:
         coll_list = pygame.sprite.spritecollide(player,bad_list,True)
         for bad in coll_list:
             if not(bad.good):
-                alive = health_bar.hit(90)
+                alive = health_bar1.hit(90)
                 if not(alive):
                     player.losted = True
             else:
-                alive = health_bar.hit(50)
+                alive = health_bar1.hit(50)
                 if not(alive):
                     player.losted = True
 
         coll_list = pygame.sprite.spritecollide(player,b_bullet,True)
         for bad in coll_list:
-            alive = health_bar.hit(20)
+            alive = health_bar1.hit(20)
             if not(alive):
                 player.losted = True
                 
@@ -489,8 +495,8 @@ while done == False:
         missile_list.update()
         full_list.draw(screen)
 
-        bullet_bar.draw(screen)
-        health_bar.draw(screen)
+        bullet_bar1.draw(screen)
+        health_bar1.draw(screen)
         
         jump_bar()
         draw_mouse()
@@ -532,7 +538,8 @@ while done == False:
                     player2_move = 0
                 if event.key == pygame.K_DOWN:
                     player2_move = 0
-    
+        if done:
+            break
             
                     
         mX = (pygame.mouse.get_pos())[0]
@@ -705,7 +712,7 @@ while done == False:
 
 
     if scene == 3:
-        event_b = end.draw(screen,score) == 1
+        event_b = end.draw(screen,score)
         if event_b == 1:
             pygame.mouse.set_visible(False)
             init_game()
