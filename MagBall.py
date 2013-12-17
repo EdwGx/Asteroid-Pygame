@@ -122,7 +122,7 @@ class PlayerBall(pygame.sprite.DirtySprite):
         self.freeFall = True
         self.losted = False
         self.moveSpeed = 1.2
-    def update(self,block_group):
+    def update(self):
         global sizeY
         if self.freeFall:
             if (sizeY - self.rect.height)>self.rect.y : 

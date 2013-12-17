@@ -9,6 +9,45 @@ import menu
 import end
 import credit
 
+class jump_bar(object):
+    def __init__(self,x=10,y=470):
+        self.x = x
+        self.y = y
+        self.jumPower = float(1)
+        self.moving = False
+
+    def reinit(self):
+        self.jumPower = float(1)
+        self.moving = False
+
+    def start_move(self):
+        self.moving = True
+
+    def stop_move(self,p_sp):
+        p_sp.startFall()
+        
+    def draw(self,screen,p_sp):
+        if self.moving and self.jumPower > 0:
+            if p_sp.rect.y >= 2:
+                p_sp.rect.y -= 2
+            else:
+                p_sp.rect.y = 0
+            self.jumPower -= 0.02
+        elif self.jumPower <= 0.98:
+                self.jumPower += 0.02
+
+        if self.jumPower > 0:
+            if self.jumPower > 0.3:
+                draw_color = darkgreen
+            else:
+                draw_color = red
+            pygame.draw.rect(screen,draw_color,pygame.Rect(self.x,self.y,150*self.jumPower,20))
+        else:
+            self.jumPower = 0
+            if self.moving:
+                self.moving = False
+            p_sp.startFall()
+
 class bullet_bar (object):
     def __init__(self,x=10,y=410):
         self.x = x
@@ -112,6 +151,12 @@ class health_bar (object):
             self.losing = True
             return True
 
+
+
+
+
+    
+        
 class missile_controller(object):
     def __init__(self):
         self.call_timer = 18*60 #s*frame(60)
@@ -176,7 +221,7 @@ def draw_mouse():
     # center part
     pygame.draw.circle(screen,red,(mX,mY),3,0)
 
-def jump_bar():
+'''def jump_bar():
     global jumPower, moveY
     if jumPower > 0:
         if jumPower > 0.3:
@@ -190,7 +235,7 @@ def jump_bar():
         jumPower = 0
         if moveY:
             moveY = False
-            player.startFall()
+            player.startFall()'''
 
 def next_level():
     global player,spawn_speed
@@ -219,8 +264,9 @@ def init_game():
     moveY = False
 
 def reinit_player(number):
-    global player1,player2,player1_move,player2_move,bullet_bar1,bullet_bar2,health_bar1,health_bar2,missile_controller
+    global player,player1,player2,player1_move,player2_move,jump_bar1,jump_bar2,bullet_bar1,bullet_bar2,health_bar1,health_bar2,missile_controller
     if number == 1:
+        jump_bar1.reinit()
         bullet_bar1.reinit()
         health_bar1.reinit()
         missile_controller.reinit()
@@ -230,6 +276,8 @@ def reinit_player(number):
         player.startFall()
         
     elif number == 2:
+        jump_bar1.reinit()
+        jump_bar2.reinit()
         bullet_bar1.reinit()
         bullet_bar2.reinit()
         health_bar1.reinit()
@@ -243,10 +291,11 @@ def reinit_player(number):
         player2_move = 0
 
 def init_player(number):
-    global player,player1,player2,player1_move,player2_move,bullet_bar1,bullet_bar2,health_bar1,health_bar2,missile_controller
+    global player,jump_bar1,jump_bar2,player1,player2,player1_move,player2_move,bullet_bar1,bullet_bar2,health_bar1,health_bar2,missile_controller
     if number == 1:
         bullet_bar1 = bullet_bar(10)
         health_bar1 = health_bar(10)
+        jump_bar1 = jump_bar(10)
         missile_controller = missile_controller()
         
         player = MagBall.PlayerBall(200,-100)
@@ -258,6 +307,8 @@ def init_player(number):
         bullet_bar2 = bullet_bar(640)
         health_bar1 = health_bar(10)
         health_bar2 = health_bar(640)
+        jump_bar1 = jump_bar(10)
+        jump_bar2 = jump_bar(640)
         
         player1 = MagBall.PlayerBall(170,200)
         player1.add(full_list)
@@ -298,6 +349,8 @@ score = 0
 scene = 1 #1:start menu 2:game 3:retry,win,quit 4:credit 5:2-Player 6:2-Player retry
 
 background = pygame.image.load('background.jpg')
+icon = pygame.image.load('icon@2x.png')
+pygame.display.set_icon(icon)
 screen = pygame.display.set_mode([sizeX,sizeY])
 font = pygame.font.SysFont("comicsansms",30)
 pygame.display.set_caption("Asteroid")
@@ -343,7 +396,7 @@ while done == False:
                 done = True
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    moveY = True
+                    jump_bar1.start_move()
                     player.freeFall = False
     
                 if event.key == pygame.K_e:
@@ -353,8 +406,7 @@ while done == False:
                     
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_SPACE:
-                    moveY = False
-                    player.startFall()
+                    jump_bar1.stop_move(player)
                 if event.key == pygame.K_e:
                     time_run = True
                     
@@ -364,19 +416,7 @@ while done == False:
                     bullet.add(g_bullet,full_list)
         if done:
             break
-                
-            
-        if moveY and jumPower > 0:
-            if player.rect.y >= 2:
-                player.rect.y -= 2
-            else:
-                player.rect.y = 0
-                
-            jumPower -= 0.02
-        else:
-            if jumPower <= 0.98:
-                jumPower += 0.02
-                
+
     
         mX = (pygame.mouse.get_pos())[0]
         mY = (pygame.mouse.get_pos())[1]
@@ -489,7 +529,7 @@ while done == False:
         scoreLabel = font.render(('Score ') + str(score),True,white)
         screen.blit(scoreLabel,(10,10))
     
-        player.update(move_list)
+        player.update()
         g_bullet.update()
         b_bullet.update()
         missile_list.update()
@@ -497,8 +537,7 @@ while done == False:
 
         bullet_bar1.draw(screen)
         health_bar1.draw(screen)
-        
-        jump_bar()
+        jump_bar1.draw(screen,player)
         draw_mouse()
         #draw end
      
@@ -511,13 +550,11 @@ while done == False:
                 done = True
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w:
-                    player1_move = 1
-                if event.key == pygame.K_s:
-                    player1_move = 2
+                    jump_bar1.start_move()
+                    player1.freeFall = False
                 if event.key == pygame.K_UP:
-                    player2_move = 1
-                if event.key == pygame.K_DOWN:
-                    player2_move = 2
+                    jump_bar2.start_move()
+                    player2.freeFall = False
                     
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_d:
@@ -531,13 +568,9 @@ while done == False:
                         bullet.shooter = 2
                         bullet.add(g_bullet,full_list)
                 if event.key == pygame.K_w:
-                    player1_move = 0
-                if event.key == pygame.K_s:
-                    player1_move = 0
+                    jump_bar1.stop_move(player1)
                 if event.key == pygame.K_UP:
-                    player2_move = 0
-                if event.key == pygame.K_DOWN:
-                    player2_move = 0
+                    jump_bar2.stop_move(player2)
         if done:
             break
             
@@ -670,11 +703,11 @@ while done == False:
             elif (player1_move == 2) and (player1.rect.top > 6):
                 player1.rect.y -= 4
                 
-        if not(player2_move == 0):
+        '''if not(player2_move == 0):
             if (player2_move == 1) and (player2.rect.bottom < 496):
                 player2.rect.y += 4
             elif (player2_move == 2) and (player2.rect.top > 6):
-                player2.rect.y -= 4
+                player2.rect.y -= 4'''
 
         if player1.losted and player2.losted:
             pygame.mixer.music.load("lose.wav")
@@ -691,6 +724,8 @@ while done == False:
         
         scoreLabel2 = font.render(('Score ') + str(player2.score),True,white)
         screen.blit(scoreLabel2,(800-scoreLabel2.get_width()-10,10))
+        player1.update()
+        player2.update()
     
         g_bullet.update()
         b_bullet.update()
@@ -702,8 +737,9 @@ while done == False:
         if not(player2.losted): 
             bullet_bar2.draw(screen)
             health_bar2.draw(screen)
-        
-        draw_mouse()
+            
+        jump_bar1.draw(screen,player1)
+        jump_bar2.draw(screen,player2)
         #draw end
      
         pygame.display.flip()

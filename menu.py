@@ -9,14 +9,14 @@ background = pygame.image.load('background.jpg')
 
 def draw(screen):
     mouse_up = False
-    rect1 =  pygame.Rect(0,0,230,70)
-    rect1.center = (sizeX/2,sizeY/2-100)
+    rect1 =  pygame.Rect(0,0,230,60)
+    rect1.center = (sizeX/2,sizeY/2+20)
     
-    rect2 =  pygame.Rect(0,0,230,70)
-    rect2.center = (sizeX/2,sizeY/2)
+    rect2 =  pygame.Rect(0,0,230,60)
+    rect2.center = (sizeX/2,sizeY/2+100)
     
-    rect3 =  pygame.Rect(0,0,230,70)
-    rect3.center = (sizeX/2,sizeY/2+100)
+    rect3 =  pygame.Rect(0,0,230,60)
+    rect3.center = (sizeX/2,sizeY/2+180)
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -49,17 +49,22 @@ def draw(screen):
             pygame.draw.rect(screen,darkgreen,rect3)
     else:
         pygame.draw.rect(screen,green,rect3)
+
+    tfont = pygame.font.SysFont("comicsansms",80)
+    tLabel = tfont.render('Asteroid',True,white)
+    screen.blit(tLabel,
+                ((sizeX - tLabel.get_width())/2,(sizeY - tLabel.get_height())/2 -120))
         
     font = pygame.font.SysFont("comicsansms",30)
     Label = font.render('Single Player',True,white)
     screen.blit(Label,
-                ((sizeX - Label.get_width())/2,(sizeY - Label.get_height())/2-100))
+                ((sizeX - Label.get_width())/2,(sizeY - Label.get_height())/2+20))
     Label = font.render('Two Players',True,white)
     screen.blit(Label,
-                ((sizeX - Label.get_width())/2,(sizeY - Label.get_height())/2))
+                ((sizeX - Label.get_width())/2,(sizeY - Label.get_height())/2+100))
     Label = font.render('Credits',True,white)
     screen.blit(Label,
-                ((sizeX - Label.get_width())/2,(sizeY - Label.get_height())/2+100))
+                ((sizeX - Label.get_width())/2,(sizeY - Label.get_height())/2+180))
     pygame.display.flip()
     clock.tick(60)
     
