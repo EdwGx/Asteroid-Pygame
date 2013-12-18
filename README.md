@@ -1,4 +1,4 @@
-Atom-Pygame
+Asteroid-Pygame
 ===========
 It is a highschool student project .
 
