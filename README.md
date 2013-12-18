@@ -6,18 +6,30 @@ What is this game?
 ===========
 This is a 2D spacegame made using python that runs using pygame.
 
+How to install?
+===========
+1.Download and install python 3.3 (Windows) or 2.7 (OS X).      
+  -http://www.python.org/download/
+       
+2.Download and install pygame.      
+  -http://www.pygame.org/download.shtml      
+      
+3.Run the Main.py in python with pygame.      
+
+
+
 How to play?
 ===========
-Their are two game modes
-1 PLAYER
+Their are two game modes      
+-1 PLAYER
 -Use the space bar to vertically control your spaceship.   
 -Left click to shoot a bullet.    
 -Use your 8 bullets wisely, It takes two seconds to reload.    
 -The'r' key can reload your bullets at anytime.    
 -When the Guided Missile comes (each 18 seconds of play), use your mouse to control its vertical movement.    
 -The Guided Missile will kill all enemys with one shot.    
--Enemy shots will destroy the guided missile.
-2 PLAYER
+-Enemy shots will destroy the guided missile.     
+-2 PLAYER
 - Use W key to control player one's vertical movement. Use D key to shoot
 - Use UP key to control player two's vertical  movement. use the RIGHT key to shoot
 - Player one is red, and player two is green.
