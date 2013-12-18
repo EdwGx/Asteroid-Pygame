@@ -8,6 +8,7 @@ import Block
 import menu
 import end
 import credit
+import mode
 
 class jump_bar(object):
     def __init__(self,x=10,y=470):
@@ -15,15 +16,18 @@ class jump_bar(object):
         self.y = y
         self.jumPower = float(1)
         self.moving = False
+        self.spend = 0.02
 
     def reinit(self):
         self.jumPower = float(1)
         self.moving = False
+        self.spend = 0.02
 
     def start_move(self):
         self.moving = True
 
     def stop_move(self,p_sp):
+        self.moving = False
         p_sp.startFall()
         
     def draw(self,screen,p_sp):
@@ -32,7 +36,7 @@ class jump_bar(object):
                 p_sp.rect.y -= 2
             else:
                 p_sp.rect.y = 0
-            self.jumPower -= 0.02
+            self.jumPower -= self.spend
         elif self.jumPower <= 0.98:
                 self.jumPower += 0.02
 
@@ -56,11 +60,14 @@ class bullet_bar (object):
         self.bullet = self.max
         self.reloading = False
         self.reloadTimer = 0
+        self.reload_time = 2
 
     def reinit(self):
+        self.max = 8
         self.bullet = self.max
         self.reloading = False
         self.reloadTimer = 0
+        self.reload_time = 2
 
     def reload_bullet(self):
         if self.reloading == False:
@@ -68,7 +75,7 @@ class bullet_bar (object):
             self.reloading = True
         
     def draw(self,d_surface):
-        self.reload_time = 2
+        
         time_left = self.reload_time-(float(pygame.time.get_ticks())-float(self.reloadTimer))/1000
 
         if self.reloading:
@@ -111,6 +118,8 @@ class health_bar (object):
         self.losing = False
         self.lastHit = 0
         self.quick_check = False
+        self.heal = 0.1
+        self.heal_time = 3000
 
     def reinit(self):
         self.health = float(self.max)
@@ -118,9 +127,10 @@ class health_bar (object):
         self.losing = False
         self.lastHit = 0
         self.quick_check = False
+        self.heal = 0.1
+        self.heal_time = 3000
         
     def draw(self,d_surface):
-        heal_time = 3000 #ms
         if self.losing:
             if self.health - self.d_health <= 0:
                 self.losing = False
@@ -130,12 +140,12 @@ class health_bar (object):
                 self.d_health -= 4
         elif self.quick_check:
             if self.health < 100:
-                self.health += 0.1
+                self.health += self.heal
                 self.d_health = self.health
             else:
                 self.health = 100
                 self.d_health = self.health
-        elif (pygame.time.get_ticks() - self.lastHit) >= heal_time:
+        elif (pygame.time.get_ticks() - self.lastHit) >= self.heal_time:
             self.quick_check = True        
         pygame.draw.rect(d_surface,red,(self.x,self.y,int(150*self.d_health/self.max),20))
         font = pygame.font.SysFont("Lucida Console",15,True)
@@ -165,6 +175,7 @@ class missile_controller(object):
     def reinit(self):
         self.call_timer = 18*60 #s*frame(60)
         self.current_timer = 0
+        self.m_existed = False
     def draw(self,d_surface):
         if self.current_timer < self.call_timer:
             self.current_timer += 1
@@ -221,26 +232,10 @@ def draw_mouse():
     # center part
     pygame.draw.circle(screen,red,(mX,mY),3,0)
 
-'''def jump_bar():
-    global jumPower, moveY
-    if jumPower > 0:
-        if jumPower > 0.3:
-            draw_color = darkgreen
-        else:
-            draw_color = red
-        pygame.draw.rect(screen,
-                         draw_color,
-                         pygame.Rect(10,sizeY-30,150*jumPower,20))
-    else:
-        jumPower = 0
-        if moveY:
-            moveY = False
-            player.startFall()'''
 
 def next_level():
-    global player,spawn_speed
-    spawn_speed += 2
-    player.moveSpeed += 0.4
+    global spawn_speed
+    spawn_speed += 0.04
 
 def init_game():
     global jumPower,bad_timer,block_timer,player_timer,move_dis
@@ -347,6 +342,7 @@ spawn_speed = 1
 move_dis = 0.0
 score = 0 
 scene = 1 #1:start menu 2:game 3:retry,win,quit 4:credit 5:2-Player 6:2-Player retry
+#7:mode menu
 
 background = pygame.image.load('background.jpg')
 icon = pygame.image.load('icon@2x.png')
@@ -367,14 +363,13 @@ while done == False:
     if scene == 1:
         return_number = menu.draw(screen)
         if return_number== 1:
-            pygame.mouse.set_visible(False)
             init_game()
             if is_init_1:
                 init_player(1)
                 is_init_1 = False
             else:
                 reinit_player(1)
-            scene = 2
+            scene = 7
         elif return_number== 2:
             pygame.mouse.set_visible(False)
             init_game()
@@ -387,7 +382,26 @@ while done == False:
         elif return_number == 3:
             scene = 4
             
+    if scene == 7:
+        return_number = mode.draw(screen)
+        if return_number == 2:
+            bullet_bar1.max = 6
+            bullet_bar1.bullet = 6
+            scene = 2
+            pygame.mouse.set_visible(False)
+        elif return_number == 1:
+            bullet_bar1.max = 8
+            bullet_bar1.bullet = 8
+            bullet_bar1.reload_time = 1
+            missile_controller.call_timer = 6*60
+            jump_bar1.spend = 0.006
+            health_bar1.heal = 0.3
+            health_bar1.heal_time = 500
+            scene = 2
+            pygame.mouse.set_visible(False)
+        
             
+        
 
         
     if scene == 2:
@@ -498,18 +512,20 @@ while done == False:
                     shoot_timer = pygame.time.get_ticks()
                     shoot_running = 4
 
-
+        spawn_speed += 0.04
         if block_timer <= move_dis:
             block = Block.Block()
             block.add(full_list,move_list)
-
+            
             block_timer = move_dis + random.randint(10,14)*48 - spawn_speed
-            if bad_timer <= 60:
-                bad_timer = 60
+            if block_timer < 10:
+                bad_timer = 10
 
         if bad_timer <= move_dis:
             addBad()
             bad_timer = move_dis + random.randint(2,5)*48 - spawn_speed
+            if bad_timer <= 10:
+                bad_timer = 10
     
         move_list.update(player.moveSpeed)
         bad_list.update(player.moveSpeed)
@@ -680,18 +696,19 @@ while done == False:
                     shoot_timer = pygame.time.get_ticks()
                     shoot_running = 4
 
-
+        spawn_speed += 0.04
         if block_timer <= move_dis:
             block = Block.Block()
             block.add(full_list,move_list)
-
             block_timer = move_dis + random.randint(10,14)*48 - spawn_speed
-            if bad_timer <= 60:
-                bad_timer = 60
+            if block_timer < 10:
+                block_timer = 10
 
         if bad_timer <= move_dis:
             addBad()
             bad_timer = move_dis + random.randint(2,5)*48 - spawn_speed
+            if bad_timer < 10:
+                bad_timer = 10
     
         move_list.update(0.8)
         bad_list.update(0.8)
@@ -733,13 +750,15 @@ while done == False:
         if not(player1.losted): 
             bullet_bar1.draw(screen)
             health_bar1.draw(screen)
+            jump_bar1.draw(screen,player1)
 
         if not(player2.losted): 
             bullet_bar2.draw(screen)
             health_bar2.draw(screen)
+            jump_bar2.draw(screen,player2)
             
-        jump_bar1.draw(screen,player1)
-        jump_bar2.draw(screen,player2)
+        
+        
         #draw end
      
         pygame.display.flip()
@@ -753,7 +772,7 @@ while done == False:
             pygame.mouse.set_visible(False)
             init_game()
             reinit_player(1)
-            scene = 2
+            scene = 7
         elif event_b == 2:
             scene = 1
             
