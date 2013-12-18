@@ -304,6 +304,8 @@ def init_player(number):
         health_bar2 = health_bar(640)
         jump_bar1 = jump_bar(10)
         jump_bar2 = jump_bar(640)
+        jump_bar1.spend = 0.005
+        jump_bar2.spend = 0.005
         
         player1 = MagBall.PlayerBall(170,200)
         player1.add(full_list)
@@ -415,8 +417,7 @@ while done == False:
     
                 if event.key == pygame.K_e:
                     time_run = False
-                if event.key == pygame.K_r:
-                    bullet_bar1.reload_bullet()
+                    
                     
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_SPACE:
@@ -425,6 +426,8 @@ while done == False:
                     time_run = True
                     
             if event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 3:
+                    bullet_bar1.reload_bullet()
                 if bullet_bar1.shoot():
                     bullet = MagBall.bullet(player.rect.centerx +40,player.rect.centery)
                     bullet.add(g_bullet,full_list)
@@ -512,7 +515,7 @@ while done == False:
                     shoot_timer = pygame.time.get_ticks()
                     shoot_running = 4
 
-        spawn_speed += 0.04
+        spawn_speed += 0.03
         if block_timer <= move_dis:
             block = Block.Block()
             block.add(full_list,move_list)
@@ -696,7 +699,7 @@ while done == False:
                     shoot_timer = pygame.time.get_ticks()
                     shoot_running = 4
 
-        spawn_speed += 0.04
+        spawn_speed += 0.03
         if block_timer <= move_dis:
             block = Block.Block()
             block.add(full_list,move_list)
@@ -719,12 +722,6 @@ while done == False:
                 player1.rect.y += 4
             elif (player1_move == 2) and (player1.rect.top > 6):
                 player1.rect.y -= 4
-                
-        '''if not(player2_move == 0):
-            if (player2_move == 1) and (player2.rect.bottom < 496):
-                player2.rect.y += 4
-            elif (player2_move == 2) and (player2.rect.top > 6):
-                player2.rect.y -= 4'''
 
         if player1.losted and player2.losted:
             pygame.mixer.music.load("lose.wav")
@@ -769,7 +766,6 @@ while done == False:
     if scene == 3:
         event_b = end.draw(screen,score)
         if event_b == 1:
-            pygame.mouse.set_visible(False)
             init_game()
             reinit_player(1)
             scene = 7
