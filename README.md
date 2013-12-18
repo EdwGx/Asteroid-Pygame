@@ -16,16 +16,24 @@ Their are two game modes
 -The'r' key can reload your bullets at anytime.    
 -When the Guided Missile comes (each 18 seconds of play), use your mouse to control its vertical movement.    
 -The Guided Missile will kill all enemys with one shot.    
--Enemy shots will destroy the guided missile.     
+-Enemy shots will destroy the guided missile.
 2 PLAYER
-- Use W and S to control player one's vertical movement. Use D to shoot
-- Use the up and down arrow keys to control player two's movement. use the right arrow key to shoot
+- Use W key to control player one's vertical movement. Use D key to shoot
+- Use UP key to control player two's vertical  movement. use the RIGHT key to shoot
 - Player one is red, and player two is green.
+
 What is in the game?
 ===========
 -Player(You): health+100    
 -Bullets: damage-1    
 -Block: health+8    
 -Bomb: health+1 damage-90    
--Astroid: health+1 damage-50     
+-Astroid: health+1 damage-50
+-Guided missile: max damage
 
+What is Easy mode?
+===========
+- 0.5s after hit, start to heal
+- 1s bullet reload time
+- 5s a guided missile
+- Fast heal speed
