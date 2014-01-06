@@ -346,10 +346,10 @@ score = 0
 scene = 1 #1:start menu 2:game 3:retry,win,quit 4:credit 5:2-Player 6:2-Player retry
 #7:mode menu
 
-background = pygame.image.load('background.jpg')
-icon = pygame.image.load('icon@2x.png')
+background = pygame.image.load('background.jpg').convert()
+icon = pygame.image.load('icon@2x.png').convert()
 pygame.display.set_icon(icon)
-screen = pygame.display.set_mode([sizeX,sizeY])
+screen = pygame.display.set_mode([sizeX,sizeY],pygame.DOUBLEBUF)
 font = pygame.font.SysFont("comicsansms",30)
 pygame.display.set_caption("Asteroid")
 
