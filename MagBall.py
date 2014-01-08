@@ -59,7 +59,7 @@ class Asteroid(BadBall):
         BadBall.__init__(self)
         self._layer = 4
         self.good = True
-        self.image = pygame.image.load('asteroid.png')
+        self.image = pygame.image.load('asteroid.png').convert_alpha()
         self.rect = self.image.get_rect()
         startY = random.randrange(sizeY-60)
         self.rect.x = sizeX + 30
@@ -72,7 +72,7 @@ class Bomb(BadBall):
         BadBall.__init__(self)
         self._layer = 5
         self.good = False
-        self.image = pygame.image.load('bomb.png')
+        self.image = pygame.image.load('bomb.png').convert_alpha()
         self.rect = self.image.get_rect()
         startY = random.randrange(sizeY-60)
         self.rect.x = sizeX + 30
@@ -84,7 +84,7 @@ class Missile(pygame.sprite.DirtySprite):
     def __init__ (self):
         pygame.sprite.DirtySprite.__init__(self)
         self._layer = 2
-        self.image = pygame.image.load('missile.png')
+        self.image = pygame.image.load('missile.png').convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.x = -135
         self.rect.y = 200
@@ -109,9 +109,9 @@ class PlayerBall(pygame.sprite.DirtySprite):
         pygame.sprite.DirtySprite.__init__(self)
         self._layer = 2
         if green_pic:
-            self.image = pygame.image.load('spaceship2.png')
+            self.image = pygame.image.load('spaceship2.png').convert_alpha()
         else:
-            self.image = pygame.image.load('spaceship.png')
+            self.image = pygame.image.load('spaceship.png').convert_alpha()
         self.rect = self.image.get_rect()
 
         self.score = 0

@@ -161,11 +161,36 @@ class health_bar (object):
             self.losing = True
             return True
 
+class USC(pygame.sprite.DirtySprite):
+    def __init__ (self):
+        pygame.sprite.DirtySprite.__init__(self)
+        self._layer = 2
+        self.image = pygame.image.load('unmanned spacecraft.png').convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.x = 20
+        self.timer = 60
 
+    def update(self,mouse_y):
+        global g_bullet,full_list
+        self.timer -= 1
+        if self.timer == 0 or self.timer == 10 or self.timer == 20:
+            bullet = MagBall.bullet(self.rect.centerx,self.rect.centery)
+            bullet.add(g_bullet,full_list)
+            if self.timer == 0:
+                self.timer = 60
+                    
+        new_rect = self.rect
+        if (mouse_y - 3) > new_rect.centery:
+            new_rect.y += 3
+        elif (mouse_y + 3) < new_rect.centery:
+            new_rect.y -= 3
+        else:
+            new_rect.centery = mouse_y
 
-
-
-    
+        if new_rect.top > 0 and new_rect.bottom < 500:
+            self.rect = new_rect
+            
+        
         
 class missile_controller(object):
     def __init__(self):
@@ -317,6 +342,10 @@ def init_player(number):
         
                                     
 pygame.init()
+
+sizeX = 800
+sizeY = 500
+screen = pygame.display.set_mode([sizeX,sizeY],pygame.DOUBLEBUF)
 #Things must be do first
 full_list = pygame.sprite.LayeredUpdates()
 ball_list = pygame.sprite.Group()
@@ -330,8 +359,6 @@ pygame.mouse.set_visible(True)
 #Def varibles
 
 
-sizeX = 800
-sizeY = 500
 jumPower = 1
 
 bad_timer = 0
@@ -340,16 +367,16 @@ player_timer = 0.0
 shoot_timer = 0
 shoot_running = 0
 spawn_speed = 1
+usc = None
 
 move_dis = 0.0
 score = 0 
 scene = 1 #1:start menu 2:game 3:retry,win,quit 4:credit 5:2-Player 6:2-Player retry
 #7:mode menu
 
-background = pygame.image.load('background.jpg')
-icon = pygame.image.load('icon@2x.png')
+background = pygame.image.load('background.jpg').convert()
+icon = pygame.image.load('icon@2x.png').convert()
 pygame.display.set_icon(icon)
-screen = pygame.display.set_mode([sizeX,sizeY])
 font = pygame.font.SysFont("comicsansms",30)
 pygame.display.set_caption("Asteroid")
 
@@ -399,6 +426,11 @@ while done == False:
             jump_bar1.spend = 0.006
             health_bar1.heal = 0.3
             health_bar1.heal_time = 500
+
+            if usc == None:
+                usc = USC()
+                full_list.add(usc)
+            
             scene = 2
             pygame.mouse.set_visible(False)
         
@@ -443,6 +475,18 @@ while done == False:
         frames = 60
         #logic
         #coll_mouse_list = atom_list.get_sprites_at((mX,mY))
+        if usc != None:
+            usc.update(mY)
+            coll_list = pygame.sprite.spritecollide(usc,bad_list,True)
+            if len(coll_list) > 0:
+                usc.kill()
+                usc = None
+            else:
+                coll_list2 = pygame.sprite.spritecollide(usc,b_bullet,True)
+                if len(coll_list2) > 0:
+                    usc.kill()
+                    usc = None
+        
         pygame.sprite.groupcollide(b_bullet,g_bullet,True,True)
         pygame.sprite.groupcollide(b_bullet,missile_list,True,True)
         coll_list = pygame.sprite.groupcollide(bad_list,missile_list,True,True)
