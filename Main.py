@@ -168,29 +168,41 @@ class USC(pygame.sprite.DirtySprite):
         self.image = pygame.image.load('unmanned spacecraft.png').convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.x = 20
-        self.timer = 60
+        self.rect.y = 300
+        self.timer = 0
+        self.target = None
+        self.old_target = None
 
-    def update(self,mouse_y):
-        global g_bullet,full_list
-        self.timer -= 1
-        if self.timer == 0 or self.timer == 10 or self.timer == 20:
-            bullet = MagBall.bullet(self.rect.centerx,self.rect.centery)
-            bullet.add(g_bullet,full_list)
-            if self.timer == 0:
-                self.timer = 60
-                    
-        new_rect = self.rect
-        if (mouse_y - 3) > new_rect.centery:
-            new_rect.y += 3
-        elif (mouse_y + 3) < new_rect.centery:
-            new_rect.y -= 3
+    def update(self):
+        global g_bullet,full_list,bad_list
+        if self. timer > 0:
+            self.timer -= 1
+        if self.target != None:
+            if self.target.alive():
+                new_rect = self.rect
+                if (self.target.rect.centery - 3) > new_rect.centery:
+                    new_rect.y += 3
+                elif (self.target.rect.centery + 3) < new_rect.centery:
+                    new_rect.y -= 3
+                else:
+                    new_rect.centery = self.target.rect.centery
+
+                if new_rect.top > 0 and new_rect.bottom < 300:
+                    self.rect = new_rect
+
+                if self.timer == 0:
+                    if self.target.rect.centery == self.rect.centery:
+                        bullet = MagBall.bullet(self.rect.centerx,self.rect.centery)
+                        bullet.add(g_bullet,full_list)
+                        self.timer = 30
+            else:
+                self.target = None
         else:
-            new_rect.centery = mouse_y
-
-        if new_rect.top > 0 and new_rect.bottom < 500:
-            self.rect = new_rect
-            
-        
+            for b in bad_list:
+                if b.rect.x > 200 and b.rect.right < 800:
+                    self.target = b
+                    break
+                
         
 class missile_controller(object):
     def __init__(self):
@@ -416,8 +428,10 @@ while done == False:
         if return_number == 2:
             bullet_bar1.max = 6
             bullet_bar1.bullet = 6
+            usc = None
             scene = 2
             pygame.mouse.set_visible(False)
+            
         elif return_number == 1:
             bullet_bar1.max = 8
             bullet_bar1.bullet = 8
@@ -476,16 +490,11 @@ while done == False:
         #logic
         #coll_mouse_list = atom_list.get_sprites_at((mX,mY))
         if usc != None:
-            usc.update(mY)
+            usc.update()
             coll_list = pygame.sprite.spritecollide(usc,bad_list,True)
             if len(coll_list) > 0:
                 usc.kill()
                 usc = None
-            else:
-                coll_list2 = pygame.sprite.spritecollide(usc,b_bullet,True)
-                if len(coll_list2) > 0:
-                    usc.kill()
-                    usc = None
         
         pygame.sprite.groupcollide(b_bullet,g_bullet,True,True)
         pygame.sprite.groupcollide(b_bullet,missile_list,True,True)
@@ -558,6 +567,7 @@ while done == False:
                     shoot_block = b
                     shoot_timer = pygame.time.get_ticks()
                     shoot_running = 4
+                    break
 
         spawn_speed += 0.03
         if block_timer <= move_dis:
@@ -742,6 +752,7 @@ while done == False:
                     shoot_block = b
                     shoot_timer = pygame.time.get_ticks()
                     shoot_running = 4
+                    break
 
         spawn_speed += 0.03
         if block_timer <= move_dis:
@@ -810,10 +821,12 @@ while done == False:
     if scene == 3:
         event_b = end.draw(screen,score)
         if event_b == 1:
+            usc = None
             init_game()
             reinit_player(1)
             scene = 7
         elif event_b == 2:
+            usc = None
             scene = 1
             
             
