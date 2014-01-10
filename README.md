@@ -49,3 +49,4 @@ What is Easy mode?
 - 1s bullet reload time
 - 5s a guided missile
 - Fast heal speed
+- An unmanned spacecraft
